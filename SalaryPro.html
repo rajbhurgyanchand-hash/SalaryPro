@@ -1,0 +1,2748 @@
+﻿ac<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SalaryPro">
+<meta name="application-name" content="SalaryPro">
+<meta name="theme-color" content="#8b5cf6">
+<meta name="description" content="Premium Salary & Attendance Management System">
+<link rel="manifest" href="./manifest.json">
+<title>SalaryPro — Premium Salary Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #111118;
+  --bg-card: rgba(255,255,255,0.04);
+  --bg-card-hover: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
+  --border-glow: rgba(139,92,246,0.4);
+  --text-primary: #f0f0ff;
+  --text-secondary: #9090b0;
+  --text-muted: #5a5a7a;
+  --accent-purple: #8b5cf6;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-pink: #ec4899;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --gradient-main: linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4);
+  --gradient-card: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.1));
+  --shadow-glow: 0 0 30px rgba(139,92,246,0.2);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --sidebar-w: 260px;
+  --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="light"] {
+  --bg-primary: #f0f0ff;
+  --bg-secondary: #e8e8f8;
+  --bg-card: rgba(255,255,255,0.7);
+  --bg-card-hover: rgba(255,255,255,0.9);
+  --border: rgba(139,92,246,0.15);
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8a8aaa;
+  --shadow-card: 0 8px 32px rgba(139,92,246,0.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;transition:var(--transition)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-secondary)}
+::-webkit-scrollbar-thumb{background:var(--accent-purple);border-radius:3px}
+
+/*  LOADING SCREEN  */
+#loading-screen{position:fixed;inset:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity 0.6s ease}
+#loading-screen.hide{opacity:0;pointer-events:none}
+.loader-logo{font-size:3rem;font-weight:900;background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:pulse 1.5s ease-in-out infinite}
+.loader-subtitle{color:var(--text-secondary);margin-top:8px;font-size:0.9rem;letter-spacing:2px;text-transform:uppercase}
+.loader-bar{width:200px;height:3px;background:var(--border);border-radius:2px;margin-top:32px;overflow:hidden}
+.loader-bar-fill{height:100%;background:var(--gradient-main);border-radius:2px;animation:loadBar 2s ease forwards}
+@keyframes loadBar{from{width:0}to{width:100%}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes countUp{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(139,92,246,0.3)}50%{box-shadow:0 0 40px rgba(139,92,246,0.6)}}
+@keyframes slideIn{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes bounceIn{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.05)}70%{transform:scale(0.9)}100%{transform:scale(1);opacity:1}}
+
+/*  PIN LOCK  */
+#pin-screen{position:fixed;inset:0;background:var(--bg-primary);display:none;align-items:center;justify-content:center;z-index:9998;backdrop-filter:blur(20px)}
+#pin-screen.show{display:flex}
+#pin-screen.hide{display:none!important}
+.pin-card{background:var(--bg-card);border:1px solid var(--border);border-radius:24px;padding:40px;width:340px;text-align:center;backdrop-filter:blur(20px);box-shadow:var(--shadow-glow),var(--shadow-card);animation:bounceIn 0.6s ease}
+.pin-logo{font-size:2.5rem;font-weight:900;background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.pin-subtitle{color:var(--text-secondary);font-size:0.85rem;margin-bottom:28px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:28px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent-purple);transition:var(--transition)}
+.pin-dot.filled{background:var(--accent-purple);box-shadow:0 0 10px var(--accent-purple)}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pin-key{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:1.2rem;font-weight:600;color:var(--text-primary);cursor:pointer;transition:var(--transition);user-select:none}
+.pin-key:hover{background:var(--bg-card-hover);border-color:var(--accent-purple);transform:scale(1.05)}
+.pin-key:active{transform:scale(0.95)}
+.pin-key.del{color:var(--accent-pink)}
+.pin-key.zero{grid-column:2}
+.pin-error{color:var(--accent-pink);font-size:0.8rem;margin-top:12px;min-height:20px;animation:fadeIn 0.3s ease}
+
+/*  APP LAYOUT  */
+#app{display:flex;min-height:100vh;opacity:0;transition:opacity 0.5s ease}
+#app.visible{opacity:1}
+
+/*  SIDEBAR  */
+.sidebar{width:var(--sidebar-w);background:var(--bg-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:var(--transition);overflow-y:auto}
+.sidebar-header{padding:24px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:1.4rem;font-weight:900;background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sidebar-tagline{font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.profile-section{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.profile-avatar{width:44px;height:44px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:#fff;flex-shrink:0;animation:glow 3s ease-in-out infinite}
+.profile-name{font-weight:600;font-size:0.9rem;color:var(--text-primary)}
+.profile-role{font-size:0.75rem;color:var(--text-secondary)}
+.sidebar-nav{padding:16px 12px;flex:1}
+.nav-section-label{font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;padding:8px 8px 4px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;transition:var(--transition);margin-bottom:2px;font-size:0.875rem;font-weight:500;text-decoration:none}
+.nav-item:hover{background:var(--bg-card);color:var(--text-primary)}
+.nav-item.active{background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(59,130,246,0.15));color:var(--accent-purple);border:1px solid rgba(139,92,246,0.2)}
+.nav-item i{width:18px;text-align:center;font-size:0.9rem}
+.sidebar-footer{padding:16px;border-top:1px solid var(--border)}
+.theme-toggle{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);background:var(--bg-card);border:1px solid var(--border);cursor:pointer;transition:var(--transition);width:100%}
+.theme-toggle:hover{border-color:var(--accent-purple)}
+.toggle-switch{width:36px;height:20px;background:var(--border);border-radius:10px;position:relative;transition:var(--transition);margin-left:auto}
+.toggle-switch.on{background:var(--accent-purple)}
+.toggle-knob{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:var(--transition)}
+.toggle-switch.on .toggle-knob{left:18px}
+
+/*  MAIN CONTENT  */
+.main-content{margin-left:var(--sidebar-w);flex:1;padding:24px;min-height:100vh;transition:var(--transition)}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.topbar-title{font-size:1.5rem;font-weight:700;color:var(--text-primary)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.clock-display{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 16px;font-size:0.85rem;font-weight:600;color:var(--accent-cyan);font-variant-numeric:tabular-nums;backdrop-filter:blur(10px)}
+.month-badge{background:var(--gradient-card);border:1px solid var(--border-glow);border-radius:var(--radius-sm);padding:8px 16px;font-size:0.85rem;font-weight:600;color:var(--accent-purple)}
+
+/*  SECTION  */
+.section{display:none;animation:fadeInUp 0.4s ease}
+.section.active{display:block}
+
+/*  GLASS CARDS  */
+.glass-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow-card);transition:var(--transition)}
+.glass-card:hover{border-color:var(--border-glow);box-shadow:var(--shadow-glow),var(--shadow-card);transform:translateY(-2px)}
+
+/*  DASHBOARD GRID  */
+.dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{padding:20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(139,92,246,0.08) 0%,transparent 70%);pointer-events:none}
+.stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:12px}
+.stat-label{font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:4px}
+.stat-value{font-size:1.6rem;font-weight:800;color:var(--text-primary);line-height:1}
+.stat-sub{font-size:0.75rem;color:var(--text-muted);margin-top:4px}
+.stat-trend{position:absolute;top:16px;right:16px;font-size:0.75rem;font-weight:600;padding:3px 8px;border-radius:20px}
+.trend-up{background:rgba(16,185,129,0.15);color:var(--accent-green)}
+.trend-down{background:rgba(236,72,153,0.15);color:var(--accent-pink)}
+
+/*  PROGRESS SECTION  */
+.progress-section{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.progress-card{padding:24px}
+.progress-title{font-size:0.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.circle-container{display:flex;flex-direction:column;align-items:center;gap:12px}
+.circle-svg{transform:rotate(-90deg)}
+.circle-bg{fill:none;stroke:var(--border);stroke-width:8}
+.circle-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.circle-text{font-size:1.4rem;font-weight:800;fill:var(--text-primary);text-anchor:middle;dominant-baseline:middle;transform:rotate(90deg);transform-origin:center}
+.circle-sub{font-size:0.6rem;fill:var(--text-secondary);text-anchor:middle;dominant-baseline:middle;transform:rotate(90deg);transform-origin:center}
+.salary-bar-wrap{margin-top:8px}
+.salary-bar-label{display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);margin-bottom:8px}
+.salary-bar-track{height:10px;background:var(--border);border-radius:5px;overflow:hidden}
+.salary-bar-fill{height:100%;background:var(--gradient-main);border-radius:5px;transition:width 1s ease;position:relative}
+.salary-bar-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);animation:shimmer 2s infinite;background-size:200% 100%}
+
+/*  AI PREDICTION  */
+.ai-card{padding:24px;margin-bottom:24px;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(59,130,246,0.08));border-color:rgba(139,92,246,0.25)}
+.ai-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.ai-icon{width:36px;height:36px;border-radius:10px;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.9rem}
+.ai-title{font-weight:700;font-size:1rem}
+.ai-subtitle{font-size:0.75rem;color:var(--text-secondary)}
+.ai-prediction-text{font-size:1rem;color:var(--text-primary);line-height:1.6;padding:16px;background:var(--bg-card);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.ai-prediction-text span{color:var(--accent-cyan);font-weight:700}
+.ai-scenarios{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+.ai-scenario{padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);text-align:center;cursor:pointer;transition:var(--transition)}
+.ai-scenario:hover{border-color:var(--accent-purple);background:var(--bg-card-hover)}
+.ai-scenario-days{font-size:1.2rem;font-weight:800;color:var(--accent-purple)}
+.ai-scenario-label{font-size:0.7rem;color:var(--text-secondary);margin-top:2px}
+.ai-scenario-salary{font-size:0.85rem;font-weight:600;color:var(--accent-cyan);margin-top:4px}
+
+/*  CALENDAR  */
+.calendar-card{padding:24px;margin-bottom:24px}
+.calendar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.calendar-nav{display:flex;align-items:center;gap:12px}
+.cal-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:var(--transition)}
+.cal-btn:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.cal-month-year{font-size:1.1rem;font-weight:700;color:var(--text-primary)}
+.calendar-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--text-secondary)}
+.legend-dot{width:10px;height:10px;border-radius:50%}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-header{text-align:center;font-size:0.7rem;font-weight:600;color:var(--text-muted);padding:6px 0;text-transform:uppercase}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:0.8rem;font-weight:500;cursor:pointer;transition:var(--transition);position:relative;border:1px solid transparent;user-select:none}
+.cal-day:hover{background:var(--bg-card-hover);border-color:var(--border)}
+.cal-day.empty{cursor:default}
+.cal-day.today{border-color:var(--accent-purple)!important;color:var(--accent-purple);font-weight:700}
+.cal-day.present{background:rgba(16,185,129,0.2);border-color:rgba(16,185,129,0.4);color:#10b981}
+.cal-day.absent{background:rgba(236,72,153,0.2);border-color:rgba(236,72,153,0.4);color:#ec4899}
+.cal-day.halfday{background:rgba(245,158,11,0.2);border-color:rgba(245,158,11,0.4);color:#f59e0b}
+.cal-day.overtime{background:rgba(6,182,212,0.2);border-color:rgba(6,182,212,0.4);color:#06b6d4}
+.cal-day.holiday{background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.4);color:#8b5cf6}
+.cal-day.sunday{color:var(--accent-pink);opacity:0.7}
+.cal-day-emoji{position:absolute;bottom:1px;right:2px;font-size:0.55rem;line-height:1}
+.attendance-popup{position:fixed;background:var(--bg-secondary);border:1px solid var(--border-glow);border-radius:var(--radius);padding:16px;z-index:500;box-shadow:var(--shadow-glow),var(--shadow-card);min-width:200px;animation:bounceIn 0.3s ease}
+.popup-title{font-size:0.85rem;font-weight:600;color:var(--text-primary);margin-bottom:12px}
+.popup-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.popup-opt{padding:10px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg-card);cursor:pointer;text-align:center;font-size:0.8rem;transition:var(--transition)}
+.popup-opt:hover{border-color:var(--accent-purple);background:var(--bg-card-hover)}
+.popup-opt.clear{grid-column:1/-1;color:var(--accent-pink);border-color:rgba(236,72,153,0.3)}
+.popup-close{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.9rem}
+
+/*  ANALYTICS  */
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.chart-card{padding:24px}
+.chart-title{font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.chart-title i{color:var(--accent-purple)}
+.chart-wrap{position:relative;height:220px}
+
+/*  EXPORT SECTION  */
+.export-section{margin-bottom:24px}
+.export-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.export-btn{padding:14px 20px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);cursor:pointer;font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:600;display:flex;align-items:center;gap:10px;transition:var(--transition);backdrop-filter:blur(10px)}
+.export-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+.export-btn.primary{background:var(--gradient-main);border:none;color:#fff}
+.export-btn.pdf{border-color:rgba(236,72,153,0.4);color:var(--accent-pink)}
+.export-btn.csv{border-color:rgba(16,185,129,0.4);color:var(--accent-green)}
+.export-btn.excel{border-color:rgba(59,130,246,0.4);color:var(--accent-blue)}
+
+/*  BOTTOM NAV (mobile)  */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg-secondary);border-top:1px solid var(--border);padding:8px 0 12px;z-index:100;backdrop-filter:blur(20px)}
+.bottom-nav-items{display:flex;justify-content:space-around}
+.bottom-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;cursor:pointer;color:var(--text-muted);transition:var(--transition);font-size:0.65rem;font-weight:500;border-radius:8px}
+.bottom-nav-item.active{color:var(--accent-purple)}
+.bottom-nav-item i{font-size:1.1rem}
+
+/*  SECTION HEADERS  */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.section-title{font-size:1.1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.section-title i{color:var(--accent-purple)}
+
+/*  SALARY COUNTER  */
+.salary-counter{font-size:2.8rem;font-weight:900;background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;animation:countUp 0.8s ease}
+
+/*  RESPONSIVE  */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-content{margin-left:0;padding:16px;padding-bottom:80px}
+  .bottom-nav{display:block}
+  .progress-section{grid-template-columns:1fr}
+  .analytics-grid{grid-template-columns:1fr}
+  .dashboard-grid{grid-template-columns:repeat(2,1fr)}
+  .topbar-title{font-size:1.2rem}
+  .salary-counter{font-size:2rem}
+  .mobile-menu-btn{display:flex!important}
+}
+@media(max-width:480px){
+  .dashboard-grid{grid-template-columns:1fr 1fr}
+  .ai-scenarios{grid-template-columns:repeat(2,1fr)}
+}
+.mobile-menu-btn{display:none;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer;color:var(--text-primary)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99;backdrop-filter:blur(4px)}
+.overlay.show{display:block}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:600}
+.badge-purple{background:rgba(139,92,246,0.15);color:var(--accent-purple);border:1px solid rgba(139,92,246,0.3)}
+.badge-green{background:rgba(16,185,129,0.15);color:var(--accent-green);border:1px solid rgba(16,185,129,0.3)}
+.summary-table{width:100%;border-collapse:collapse;margin-top:12px}
+.summary-table th{text-align:left;padding:10px 12px;font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border)}
+.summary-table td{padding:10px 12px;font-size:0.85rem;color:var(--text-primary);border-bottom:1px solid var(--border)}
+.summary-table tr:last-child td{border-bottom:none}
+.summary-table tr:hover td{background:var(--bg-card-hover)}
+@media print{
+  .sidebar,.bottom-nav,.topbar-right,.export-section,.ai-card,.attendance-popup{display:none!important}
+  .main-content{margin-left:0!important;padding:0!important}
+  body{background:#fff!important;color:#000!important}
+  .glass-card{background:#fff!important;border:1px solid #ddd!important;box-shadow:none!important}
+  .stat-value,.salary-counter{-webkit-text-fill-color:#000!important;color:#000!important}
+}
+/* NOTIFICATION SYSTEM */
+.notif-bell-btn{position:relative;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:var(--transition);flex-shrink:0}
+.notif-bell-btn:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.notif-bell-btn.has-unread{border-color:rgba(139,92,246,0.5);animation:glow 2s ease-in-out infinite}
+.notif-badge{position:absolute;top:-5px;right:-5px;background:var(--accent-pink);color:#fff;font-size:0.6rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg-primary)}
+.notif-badge.hide{display:none}
+.notif-drawer{position:fixed;top:0;right:-380px;width:370px;height:100vh;background:var(--bg-secondary);border-left:1px solid var(--border);z-index:200;display:flex;flex-direction:column;transition:right 0.35s cubic-bezier(0.4,0,0.2,1);box-shadow:-8px 0 40px rgba(0,0,0,0.4)}
+.notif-drawer.open{right:0}
+.notif-drawer-header{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.notif-drawer-title{font-size:1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.notif-drawer-actions{display:flex;gap:8px}
+.notif-action-btn{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;font-weight:600;color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-family:'Inter',sans-serif}
+.notif-action-btn:hover{border-color:var(--accent-purple);color:var(--accent-purple)}
+.notif-close-btn{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;padding:4px;transition:var(--transition)}
+.notif-close-btn:hover{color:var(--text-primary)}
+.notif-filters{display:flex;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.notif-filter{padding:5px 12px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--text-muted);transition:var(--transition);white-space:nowrap;background:transparent}
+.notif-filter.active{background:var(--accent-purple);color:#fff;border-color:var(--accent-purple)}
+.notif-list{flex:1;overflow-y:auto;padding:8px}
+.notif-list::-webkit-scrollbar{width:4px}
+.notif-list::-webkit-scrollbar-thumb{background:var(--accent-purple);border-radius:2px}
+.notif-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text-muted);gap:8px}
+.notif-empty i{font-size:2.5rem;opacity:0.3}
+.notif-item{display:flex;gap:12px;padding:12px;border-radius:12px;margin-bottom:6px;border:1px solid transparent;cursor:pointer;transition:var(--transition);position:relative;animation:fadeInUp 0.3s ease}
+.notif-item:hover{background:var(--bg-card-hover);border-color:var(--border)}
+.notif-item.unread{background:var(--bg-card);border-color:var(--border)}
+.notif-item.unread::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--accent-purple);border-radius:0 2px 2px 0}
+.notif-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.notif-content{flex:1;min-width:0}
+.notif-title-text{font-size:0.82rem;font-weight:600;color:var(--text-primary);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notif-body-text{font-size:0.75rem;color:var(--text-secondary);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.notif-time-text{font-size:0.65rem;color:var(--text-muted);margin-top:4px}
+.notif-delete{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem;opacity:0;transition:var(--transition);padding:2px 4px}
+.notif-item:hover .notif-delete{opacity:1}
+.notif-delete:hover{color:var(--accent-pink)}
+.notif-settings-panel{padding:16px;border-top:1px solid var(--border);flex-shrink:0}
+.notif-settings-title{font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.notif-setting-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.notif-setting-row:last-child{border-bottom:none}
+.notif-setting-label{font-size:0.8rem;color:var(--text-secondary);display:flex;align-items:center;gap:8px}
+.notif-setting-label i{color:var(--accent-purple);width:14px}
+.mini-toggle{width:32px;height:18px;background:var(--border);border-radius:9px;position:relative;cursor:pointer;transition:var(--transition);flex-shrink:0}
+.mini-toggle.on{background:var(--accent-purple)}
+.mini-toggle-knob{width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:var(--transition)}
+.mini-toggle.on .mini-toggle-knob{left:16px}
+.toast-container{position:fixed;bottom:80px;right:16px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+@media(min-width:769px){.toast-container{bottom:24px}}
+.toast{background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;padding:14px 16px;min-width:280px;max-width:340px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);pointer-events:all;animation:slideInToast 0.4s cubic-bezier(0.4,0,0.2,1)}
+@keyframes slideInToast{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOutToast{from{transform:translateX(0);opacity:1}to{transform:translateX(120%);opacity:0}}
+.toast-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.toast-content{flex:1}
+.toast-title{font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:2px}
+.toast-body{font-size:0.75rem;color:var(--text-secondary);line-height:1.4}
+.toast-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.8rem;padding:0;flex-shrink:0;margin-top:2px}
+.toast-progress{height:2px;background:var(--border);border-radius:1px;margin-top:8px;overflow:hidden}
+.toast-progress-bar{height:100%;border-radius:1px;transition:width linear}
+.pwa-banner{position:fixed;bottom:70px;left:12px;right:12px;background:linear-gradient(135deg,rgba(139,92,246,0.97),rgba(59,130,246,0.97));border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;z-index:8000;box-shadow:0 8px 32px rgba(139,92,246,0.4);animation:slideInToast 0.5s ease;backdrop-filter:blur(20px)}
+@media(min-width:769px){.pwa-banner{bottom:24px;left:auto;right:24px;width:360px}}
+.pwa-banner.hide{display:none}
+.pwa-banner-icon{font-size:2rem;flex-shrink:0}
+.pwa-banner-text{flex:1}
+.pwa-banner-title{font-size:0.9rem;font-weight:700;color:#fff}
+.pwa-banner-sub{font-size:0.75rem;color:rgba(255,255,255,0.8);margin-top:2px}
+.pwa-install-btn{background:#fff;color:#8b5cf6;border:none;border-radius:10px;padding:8px 16px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0}
+.pwa-dismiss-btn{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:0.9rem;flex-shrink:0}
+.notif-permission-card{margin:12px;padding:16px;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(59,130,246,0.08));border:1px solid rgba(139,92,246,0.3);border-radius:12px;text-align:center}
+.notif-permission-card p{font-size:0.8rem;color:var(--text-secondary);margin:8px 0 12px}
+.notif-permission-btn{background:var(--gradient-main);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif}
+@media(max-width:768px){.notif-drawer{width:100%;right:-100%}.notif-drawer.open{right:0}}
+
+/* ═══ ONBOARDING SCREEN ═══ */
+#onboarding-screen{position:fixed;inset:0;background:var(--bg-primary);display:none;align-items:center;justify-content:center;z-index:9997;padding:20px}
+#onboarding-screen.show{display:flex}
+.onboard-card{background:var(--bg-card);border:1px solid var(--border-glow);border-radius:28px;padding:36px 32px;width:100%;max-width:440px;backdrop-filter:blur(20px);box-shadow:var(--shadow-glow),var(--shadow-card);animation:bounceIn 0.6s ease}
+.onboard-step{display:none}.onboard-step.active{display:block}
+.onboard-logo{font-size:2.2rem;font-weight:900;background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px}
+.onboard-title{font-size:1.3rem;font-weight:700;color:var(--text-primary);margin-bottom:6px}
+.onboard-sub{font-size:0.85rem;color:var(--text-secondary);margin-bottom:24px;line-height:1.5}
+.onboard-field{margin-bottom:16px}
+.onboard-label{font-size:0.75rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.onboard-input{width:100%;background:var(--bg-secondary);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:0.9rem;outline:none;transition:var(--transition);box-sizing:border-box}
+.onboard-input:focus{border-color:var(--accent-purple);box-shadow:0 0 0 3px rgba(139,92,246,0.15)}
+.onboard-input::placeholder{color:var(--text-muted)}
+.onboard-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.onboard-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--gradient-main);color:#fff;font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;transition:var(--transition);margin-top:8px}
+.onboard-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+.onboard-progress{display:flex;gap:6px;justify-content:center;margin-bottom:20px}
+.onboard-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:var(--transition)}
+.onboard-dot.active{background:var(--accent-purple);width:20px;border-radius:4px}
+.onboard-avatar-preview{width:64px;height:64px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:#fff;margin:0 auto 16px;animation:glow 3s ease-in-out infinite}
+.onboard-emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.onboard-emoji{width:40px;height:40px;border-radius:10px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;transition:var(--transition)}
+.onboard-emoji:hover,.onboard-emoji.selected{border-color:var(--accent-purple);background:rgba(139,92,246,0.15)}
+
+/* ═══ PROFILE EDIT MODAL ═══ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.modal-overlay.show{display:flex}
+.modal-card{background:var(--bg-secondary);border:1px solid var(--border-glow);border-radius:24px;padding:28px;width:100%;max-width:480px;box-shadow:var(--shadow-glow),var(--shadow-card);animation:bounceIn 0.4s ease;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:1.1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px}
+.modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.1rem;transition:var(--transition)}
+.modal-close:hover{color:var(--text-primary)}
+.modal-field{margin-bottom:14px}
+.modal-label{font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.modal-input{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:0.875rem;outline:none;transition:var(--transition);box-sizing:border-box}
+.modal-input:focus{border-color:var(--accent-purple);box-shadow:0 0 0 3px rgba(139,92,246,0.15)}
+.modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-save-btn{width:100%;padding:13px;border-radius:12px;border:none;background:var(--gradient-main);color:#fff;font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:var(--transition);margin-top:8px}
+.modal-save-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-glow)}
+.modal-divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ═══ ADVANCED FEATURES ═══ */
+.streak-card{padding:20px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(239,68,68,0.08));border-color:rgba(245,158,11,0.3)}
+.streak-number{font-size:3rem;font-weight:900;background:linear-gradient(135deg,#f59e0b,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.hike-card{padding:24px;margin-bottom:24px}
+.hike-slider{width:100%;accent-color:var(--accent-purple);margin:12px 0}
+.notes-card{padding:24px;margin-bottom:24px}
+.notes-textarea{width:100%;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:0.85rem;resize:vertical;min-height:100px;outline:none;transition:var(--transition);box-sizing:border-box;line-height:1.6}
+.notes-textarea:focus{border-color:var(--accent-purple)}
+.notes-textarea::placeholder{color:var(--text-muted)}
+.edit-profile-btn{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:10px;border:1px solid var(--border-glow);background:rgba(139,92,246,0.1);color:var(--accent-purple);cursor:pointer;font-size:0.8rem;font-weight:600;transition:var(--transition);font-family:'Inter',sans-serif}
+.edit-profile-btn:hover{background:rgba(139,92,246,0.2);transform:scale(1.03)}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="loader-logo">💰 SalaryPro</div>
+  <div class="loader-subtitle">Premium Salary Manager</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ONBOARDING SCREEN (first launch only)
+════════════════════════════════════════════ -->
+<div id="onboarding-screen">
+  <div class="onboard-card">
+    <!-- Step dots -->
+    <div class="onboard-progress">
+      <div class="onboard-dot active" id="ob-dot-0"></div>
+      <div class="onboard-dot" id="ob-dot-1"></div>
+      <div class="onboard-dot" id="ob-dot-2"></div>
+    </div>
+
+    <!-- Step 1: Welcome + Name -->
+    <div class="onboard-step active" id="ob-step-0">
+      <div class="onboard-logo">💰 SalaryPro</div>
+      <div class="onboard-title">Welcome! Let's set up your profile</div>
+      <div class="onboard-sub">This takes just 30 seconds. Your data stays on your device only.</div>
+      <div class="onboard-field">
+        <div class="onboard-label">Your Full Name</div>
+        <input class="onboard-input" id="ob-name" type="text" placeholder="e.g. Rahul Kumar" maxlength="40">
+      </div>
+      <div class="onboard-field">
+        <div class="onboard-label">Job Designation</div>
+        <input class="onboard-input" id="ob-role" type="text" placeholder="e.g. Software Developer" maxlength="40">
+      </div>
+      <div class="onboard-field">
+        <div class="onboard-label">Company Name (optional)</div>
+        <input class="onboard-input" id="ob-company" type="text" placeholder="e.g. Tech Solutions Pvt Ltd" maxlength="50">
+      </div>
+      <button class="onboard-btn" onclick="obNext(1)">Continue →</button>
+    </div>
+
+    <!-- Step 2: Salary Details -->
+    <div class="onboard-step" id="ob-step-1">
+      <div style="font-size:2rem;margin-bottom:8px">💰</div>
+      <div class="onboard-title">Your Salary Details</div>
+      <div class="onboard-sub">Set your monthly salary and working days. You can change these anytime.</div>
+      <div class="onboard-field">
+        <div class="onboard-label">Monthly Gross Salary (₹)</div>
+        <input class="onboard-input" id="ob-salary" type="number" placeholder="e.g. 13800" value="13800" min="1000" max="9999999">
+      </div>
+      <div class="onboard-row">
+        <div class="onboard-field">
+          <div class="onboard-label">Working Days/Month</div>
+          <input class="onboard-input" id="ob-days" type="number" placeholder="26" value="26" min="1" max="31">
+        </div>
+        <div class="onboard-field">
+          <div class="onboard-label">PF Rate (%)</div>
+          <input class="onboard-input" id="ob-pf" type="number" placeholder="12" value="12" min="0" max="30">
+        </div>
+      </div>
+      <div class="onboard-field">
+        <div class="onboard-label">Overtime Rate (x per day)</div>
+        <input class="onboard-input" id="ob-ot" type="number" placeholder="1.5" value="1.5" min="1" max="5" step="0.1">
+      </div>
+      <button class="onboard-btn" onclick="obNext(2)">Continue →</button>
+      <div style="text-align:center;margin-top:10px"><span style="font-size:0.75rem;color:var(--text-muted);cursor:pointer" onclick="obNext(1,true)">← Back</span></div>
+    </div>
+
+    <!-- Step 3: PIN Setup -->
+    <div class="onboard-step" id="ob-step-2">
+      <div style="font-size:2rem;margin-bottom:8px">🔐</div>
+      <div class="onboard-title">Set Your Security PIN</div>
+      <div class="onboard-sub">Choose a 4-digit PIN to protect your salary data.</div>
+      <div class="pin-dots" style="justify-content:center;margin-bottom:20px">
+        <div class="pin-dot" id="ob-dot-pin-0"></div>
+        <div class="pin-dot" id="ob-dot-pin-1"></div>
+        <div class="pin-dot" id="ob-dot-pin-2"></div>
+        <div class="pin-dot" id="ob-dot-pin-3"></div>
+      </div>
+      <div class="pin-keypad" style="max-width:260px;margin:0 auto">
+        <div class="pin-key" onclick="obPinPress('1')">1</div>
+        <div class="pin-key" onclick="obPinPress('2')">2</div>
+        <div class="pin-key" onclick="obPinPress('3')">3</div>
+        <div class="pin-key" onclick="obPinPress('4')">4</div>
+        <div class="pin-key" onclick="obPinPress('5')">5</div>
+        <div class="pin-key" onclick="obPinPress('6')">6</div>
+        <div class="pin-key" onclick="obPinPress('7')">7</div>
+        <div class="pin-key" onclick="obPinPress('8')">8</div>
+        <div class="pin-key" onclick="obPinPress('9')">9</div>
+        <div class="pin-key del" onclick="obPinDelete()"><i class="fa fa-delete-left"></i></div>
+        <div class="pin-key zero" onclick="obPinPress('0')">0</div>
+      </div>
+      <div id="ob-pin-error" style="color:var(--accent-pink);font-size:0.8rem;text-align:center;margin-top:10px;min-height:20px"></div>
+      <div style="text-align:center;margin-top:8px"><span style="font-size:0.75rem;color:var(--text-muted);cursor:pointer" onclick="obNext(1)">← Back</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PIN LOCK SCREEN -->
+<div id="pin-screen">
+  <div class="pin-card">
+    <div class="pin-logo"> SalaryPro</div>
+    <div class="pin-subtitle">Enter your 4-digit PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot-0"></div>
+      <div class="pin-dot" id="dot-1"></div>
+      <div class="pin-dot" id="dot-2"></div>
+      <div class="pin-dot" id="dot-3"></div>
+    </div>
+    <div class="pin-keypad">
+      <div class="pin-key" onclick="pinPress('1')">1</div>
+      <div class="pin-key" onclick="pinPress('2')">2</div>
+      <div class="pin-key" onclick="pinPress('3')">3</div>
+      <div class="pin-key" onclick="pinPress('4')">4</div>
+      <div class="pin-key" onclick="pinPress('5')">5</div>
+      <div class="pin-key" onclick="pinPress('6')">6</div>
+      <div class="pin-key" onclick="pinPress('7')">7</div>
+      <div class="pin-key" onclick="pinPress('8')">8</div>
+      <div class="pin-key" onclick="pinPress('9')">9</div>
+      <div class="pin-key del" onclick="pinDelete()"><i class="fa fa-delete-left"></i></div>
+      <div class="pin-key zero" onclick="pinPress('0')">0</div>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- OVERLAY for mobile sidebar -->
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ATTENDANCE POPUP -->
+<div class="attendance-popup" id="att-popup" style="display:none">
+  <button class="popup-close" onclick="closePopup()"><i class="fa fa-times"></i></button>
+  <div class="popup-title" id="popup-date-title">Mark Attendance</div>
+  <div class="popup-options">
+    <div class="popup-opt" onclick="markDay('present')"> Present</div>
+    <div class="popup-opt" onclick="markDay('absent')"> Absent</div>
+    <div class="popup-opt" onclick="markDay('halfday')"> Half Day</div>
+    <div class="popup-opt" onclick="markDay('overtime')"> Overtime</div>
+    <div class="popup-opt" onclick="markDay('holiday')"> Holiday</div>
+    <div class="popup-opt clear" onclick="markDay(null)"> Clear</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"> SalaryPro</div>
+      <div class="sidebar-tagline">Premium Salary Manager</div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="sidebar-avatar">RK</div>
+      <div>
+        <div class="profile-name" id="sidebar-name">Rahul Kumar</div>
+        <div class="profile-role" id="sidebar-role">Software Developer</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <div class="nav-item active" onclick="showSection('dashboard',this)">
+        <i class="fa fa-gauge-high"></i> Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('calendar',this)">
+        <i class="fa fa-calendar-days"></i> Attendance
+      </div>
+      <div class="nav-item" onclick="showSection('analytics',this)">
+        <i class="fa fa-chart-line"></i> Analytics
+      </div>
+      <div class="nav-section-label" style="margin-top:8px">Tools</div>
+      <div class="nav-item" onclick="showSection('export',this)">
+        <i class="fa fa-file-export"></i> Export
+      </div>
+      <div class="nav-item" onclick="showSection('profile',this)">
+        <i class="fa fa-user-circle"></i> Profile
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fa fa-sun" style="color:var(--accent-orange)"></i>
+        <span style="font-size:0.8rem;color:var(--text-secondary)">Light Mode</span>
+        <div class="toggle-switch" id="theme-switch"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile-menu-btn" onclick="openSidebar()"><i class="fa fa-bars"></i></button>
+        <div class="topbar-title" id="section-title">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="clock-display" id="clock">00:00:00</div>
+        <div class="month-badge" id="month-badge">Loading...</div>
+        <div class="notif-bell-btn" id="notif-bell" onclick="toggleNotifDrawer()" title="Notifications">
+          <i class="fa fa-bell"></i>
+          <span class="notif-badge hide" id="notif-badge">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!--  DASHBOARD SECTION  -->
+    <div class="section active" id="section-dashboard">
+
+      <!-- Earned Salary Hero -->
+      <div class="glass-card" style="padding:28px;margin-bottom:24px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(59,130,246,0.08));border-color:rgba(139,92,246,0.3)">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px">
+          <div>
+            <div style="font-size:0.8rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:8px">
+              <i class="fa fa-indian-rupee-sign" style="color:var(--accent-purple)"></i> Gross Earned Salary This Month
+            </div>
+            <div class="salary-counter" id="earned-counter">0</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:8px">
+              of <strong style="color:var(--text-primary)">₹13,800</strong> monthly gross
+              &nbsp;&nbsp; <span id="days-worked-label" style="color:var(--accent-cyan)">0 days worked</span>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:4px">Per Day Rate</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--accent-cyan)">₹<span id="per-day-display">530.77</span></div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px">₹13,800 ÷ 26 days</div>
+          </div>
+        </div>
+
+        <!-- PF + Net Salary Row -->
+        <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+          <div style="flex:1;min-width:140px;background:rgba(236,72,153,0.08);border:1px solid rgba(236,72,153,0.25);border-radius:12px;padding:14px 16px">
+            <div style="font-size:0.7rem;color:#ec4899;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">
+              <i class="fa fa-shield-halved"></i> PF Deducted (12%)
+            </div>
+            <div style="font-size:1.3rem;font-weight:800;color:#ec4899">-₹<span id="pf-deducted-hero">0.00</span></div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px">Full month PF = ₹1,656.00</div>
+          </div>
+          <div style="flex:1;min-width:140px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:14px 16px">
+            <div style="font-size:0.7rem;color:#10b981;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:4px">
+              <i class="fa fa-hand-holding-dollar"></i> Net In-Hand
+            </div>
+            <div style="font-size:1.3rem;font-weight:800;color:#10b981">₹<span id="net-earned-hero">0.00</span></div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px">Full month net = ₹<span id="stat-net-monthly">12,144.00</span></div>
+          </div>
+        </div>
+
+        <!-- Salary Progress Bar -->
+        <div class="salary-bar-wrap" style="margin-top:16px">
+          <div class="salary-bar-label">
+            <span>Gross Salary Progress</span>
+            <span id="salary-pct">0%</span>
+          </div>
+          <div class="salary-bar-track">
+            <div class="salary-bar-fill" id="salary-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="dashboard-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fa fa-check-circle"></i></div>
+          <div class="stat-label">Present Days</div>
+          <div class="stat-value" id="stat-present">0</div>
+          <div class="stat-sub">Full day attendance</div>
+          <div class="stat-trend trend-up" id="trend-present">+0</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(236,72,153,0.15);color:#ec4899"><i class="fa fa-times-circle"></i></div>
+          <div class="stat-label">Absent Days</div>
+          <div class="stat-value" id="stat-absent">0</div>
+          <div class="stat-sub">Days missed</div>
+          <div class="stat-trend trend-down" id="trend-absent">0</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="fa fa-circle-half-stroke"></i></div>
+          <div class="stat-label">Half Days</div>
+          <div class="stat-value" id="stat-half">0</div>
+          <div class="stat-sub">Partial attendance</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4"><i class="fa fa-clock"></i></div>
+          <div class="stat-label">Overtime Days</div>
+          <div class="stat-value" id="stat-overtime">0</div>
+          <div class="stat-sub">Extra hours worked</div>
+          <div class="stat-trend trend-up" id="trend-ot">+0</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6"><i class="fa fa-umbrella-beach"></i></div>
+          <div class="stat-label">Holidays</div>
+          <div class="stat-value" id="stat-holiday">0</div>
+          <div class="stat-sub">Marked holidays</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6"><i class="fa fa-wallet"></i></div>
+          <div class="stat-label">Remaining</div>
+          <div class="stat-value" id="stat-remaining">13,800</div>
+          <div class="stat-sub">Yet to earn (gross)</div>
+        </div>
+        <div class="glass-card stat-card" style="border-color:rgba(236,72,153,0.25)">
+          <div class="stat-icon" style="background:rgba(236,72,153,0.15);color:#ec4899"><i class="fa fa-shield-halved"></i></div>
+          <div class="stat-label">PF Deducted</div>
+          <div class="stat-value" id="stat-pf" style="color:#ec4899">0.00</div>
+          <div class="stat-sub">12% of earned salary</div>
+        </div>
+        <div class="glass-card stat-card" style="border-color:rgba(16,185,129,0.25)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fa fa-hand-holding-dollar"></i></div>
+          <div class="stat-label">Net In-Hand</div>
+          <div class="stat-value" id="stat-net" style="color:#10b981">0.00</div>
+          <div class="stat-sub">After PF deduction</div>
+        </div>
+      </div>
+
+      <!-- Progress Circle + Salary Bar -->
+      <div class="progress-section">
+        <div class="glass-card progress-card">
+          <div class="progress-title"><i class="fa fa-calendar-check" style="color:var(--accent-purple)"></i> Monthly Attendance</div>
+          <div class="circle-container">
+            <svg class="circle-svg" width="140" height="140" viewBox="0 0 140 140">
+              <circle class="circle-bg" cx="70" cy="70" r="58"/>
+              <circle class="circle-fill" id="att-circle" cx="70" cy="70" r="58"
+                stroke="url(#circleGrad)" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+              <defs>
+                <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#8b5cf6"/>
+                  <stop offset="50%" stop-color="#3b82f6"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+              </defs>
+              <text class="circle-text" x="70" y="66" id="circle-pct">0%</text>
+              <text class="circle-sub" x="70" y="82" id="circle-days">0/26 days</text>
+            </svg>
+            <div style="text-align:center">
+              <div style="font-size:0.8rem;color:var(--text-secondary)">Attendance Rate</div>
+              <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px" id="att-rate-label">Based on working days</div>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card progress-card">
+          <div class="progress-title"><i class="fa fa-indian-rupee-sign" style="color:var(--accent-green)"></i> Salary Breakdown</div>
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+            <div>
+              <div class="salary-bar-label"><span>Earned</span><span id="breakdown-earned">0</span></div>
+              <div class="salary-bar-track"><div class="salary-bar-fill" id="bar-earned" style="width:0%;background:linear-gradient(90deg,#10b981,#06b6d4)"></div></div>
+            </div>
+            <div>
+              <div class="salary-bar-label"><span>Half Day Deduction</span><span id="breakdown-half">0</span></div>
+              <div class="salary-bar-track"><div class="salary-bar-fill" id="bar-half" style="width:0%;background:linear-gradient(90deg,#f59e0b,#ec4899)"></div></div>
+            </div>
+            <div>
+              <div class="salary-bar-label"><span>Overtime Bonus</span><span id="breakdown-ot">0</span></div>
+              <div class="salary-bar-track"><div class="salary-bar-fill" id="bar-ot" style="width:0%;background:linear-gradient(90deg,#06b6d4,#8b5cf6)"></div></div>
+            </div>
+            <div>
+              <div class="salary-bar-label"><span style="color:#ec4899">🛡 PF Deducted (12%)</span><span id="breakdown-pf" style="color:#ec4899">-0.00</span></div>
+              <div class="salary-bar-track"><div class="salary-bar-fill" id="bar-pf" style="width:0%;background:linear-gradient(90deg,#ec4899,#f43f5e)"></div></div>
+            </div>
+            <div>
+              <div class="salary-bar-label"><span>Remaining (Gross)</span><span id="breakdown-rem">13,800</span></div>
+              <div class="salary-bar-track"><div class="salary-bar-fill" id="bar-rem" style="width:100%;background:linear-gradient(90deg,rgba(139,92,246,0.4),rgba(59,130,246,0.4))"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Prediction -->
+      <div class="glass-card ai-card">
+        <div class="ai-header">
+          <div class="ai-icon"><i class="fa fa-robot"></i></div>
+          <div>
+            <div class="ai-title"> AI Salary Prediction</div>
+            <div class="ai-subtitle">Smart forecast based on your attendance pattern</div>
+          </div>
+        </div>
+        <div class="ai-prediction-text" id="ai-prediction-text">
+          Loading prediction...
+        </div>
+        <div class="ai-scenarios" id="ai-scenarios"></div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+    <!--  CALENDAR SECTION  -->
+    <div class="section" id="section-calendar">
+      <div class="glass-card calendar-card">
+        <div class="calendar-header">
+          <div class="calendar-nav">
+            <div class="cal-btn" onclick="changeMonth(-1)"><i class="fa fa-chevron-left"></i></div>
+            <div class="cal-month-year" id="cal-month-year">Loading...</div>
+            <div class="cal-btn" onclick="changeMonth(1)"><i class="fa fa-chevron-right"></i></div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="badge badge-purple" id="cal-summary-badge">0 days marked</span>
+            <button class="export-btn csv" style="padding:6px 12px;font-size:0.75rem" onclick="showSection('export',null)">
+              <i class="fa fa-download"></i> Export
+            </button>
+          </div>
+        </div>
+        <div class="calendar-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div> Present</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ec4899"></div> Absent</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> Half Day</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#06b6d4"></div> Overtime</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6"></div> Holiday</div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+
+      <!-- Monthly Summary Table -->
+      <div class="glass-card" style="padding:24px;margin-top:16px">
+        <div class="section-header">
+          <div class="section-title"><i class="fa fa-table-list"></i> Monthly Summary</div>
+        </div>
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Type</th><th>Days</th><th>Salary Impact</th><th>Amount</th>
+            </tr>
+          </thead>
+          <tbody id="summary-tbody"></tbody>
+        </table>
+      </div>
+    </div><!-- /calendar -->
+
+    <!--  ANALYTICS SECTION  -->
+    <div class="section" id="section-analytics">
+      <div class="analytics-grid">
+        <div class="glass-card chart-card">
+          <div class="chart-title"><i class="fa fa-chart-bar"></i> Weekly Attendance</div>
+          <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
+        </div>
+        <div class="glass-card chart-card">
+          <div class="chart-title"><i class="fa fa-chart-line"></i> Monthly Salary Trend</div>
+          <div class="chart-wrap"><canvas id="salaryChart"></canvas></div>
+        </div>
+      </div>
+      <div class="analytics-grid">
+        <div class="glass-card chart-card">
+          <div class="chart-title"><i class="fa fa-chart-pie"></i> Attendance Distribution</div>
+          <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+        </div>
+        <div class="glass-card chart-card">
+          <div class="chart-title"><i class="fa fa-calendar-week"></i> Day-wise Breakdown</div>
+          <div class="chart-wrap"><canvas id="dayChart"></canvas></div>
+        </div>
+      </div>
+    </div><!-- /analytics -->
+
+    <!--  EXPORT SECTION  -->
+    <div class="section" id="section-export">
+      <div class="glass-card" style="padding:28px;margin-bottom:24px">
+        <div class="section-header">
+          <div class="section-title"><i class="fa fa-file-export"></i> Export Reports</div>
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.875rem;margin-bottom:20px">
+          Download your salary and attendance data in multiple formats.
+        </p>
+        <div class="export-grid">
+          <button class="export-btn pdf" onclick="exportPDF()">
+            <i class="fa fa-file-pdf"></i> Export PDF
+          </button>
+          <button class="export-btn csv" onclick="exportCSV()">
+            <i class="fa fa-file-csv"></i> Export CSV
+          </button>
+          <button class="export-btn excel" onclick="exportExcel()">
+            <i class="fa fa-file-excel"></i> Export Excel
+          </button>
+          <button class="export-btn primary" onclick="exportJSON()">
+            <i class="fa fa-file-code"></i> Export JSON
+          </button>
+        </div>
+      </div>
+      <div class="glass-card" style="padding:24px">
+        <div class="section-title" style="margin-bottom:16px"><i class="fa fa-eye"></i> Preview Report</div>
+        <div id="export-preview" style="font-size:0.85rem;color:var(--text-secondary);line-height:1.8"></div>
+      </div>
+    </div><!-- /export -->
+
+    <!--  PROFILE SECTION  -->
+    <div class="section" id="section-profile">
+      <!-- Profile Hero Card -->
+      <div class="glass-card" style="padding:32px;margin-bottom:24px;text-align:center">
+        <div id="profile-avatar-big" style="width:80px;height:80px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;margin:0 auto 16px;animation:glow 3s ease-in-out infinite">RK</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary)" id="profile-name-display">Rahul Kumar</div>
+        <div style="color:var(--text-secondary);margin-top:4px" id="profile-role-display">Software Developer</div>
+        <div style="color:var(--text-muted);font-size:0.8rem;margin-top:2px" id="profile-company-display"></div>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+          <span class="badge badge-purple"><i class="fa fa-briefcase"></i>&nbsp; Full Time</span>
+          <span class="badge badge-green"><i class="fa fa-circle" style="font-size:0.5rem"></i>&nbsp; Active</span>
+        </div>
+        <div style="margin-top:16px">
+          <button class="edit-profile-btn" style="margin:0 auto" onclick="openEditModal()">
+            <i class="fa fa-pen"></i> Edit Profile & Salary
+          </button>
+        </div>
+      </div>
+
+      <!-- Salary Stats (dynamic) -->
+      <div class="dashboard-grid" id="profile-stats-grid">
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6"><i class="fa fa-indian-rupee-sign"></i></div>
+          <div class="stat-label">Monthly Gross</div>
+          <div class="stat-value" id="ps-gross">13,800</div>
+          <div class="stat-sub">CTC before PF</div>
+        </div>
+        <div class="glass-card stat-card" style="border-color:rgba(236,72,153,0.25)">
+          <div class="stat-icon" style="background:rgba(236,72,153,0.15);color:#ec4899"><i class="fa fa-shield-halved"></i></div>
+          <div class="stat-label">PF Deduction</div>
+          <div class="stat-value" id="ps-pf" style="color:#ec4899">1,656</div>
+          <div class="stat-sub" id="ps-pf-sub">12% of gross</div>
+        </div>
+        <div class="glass-card stat-card" style="border-color:rgba(16,185,129,0.25)">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fa fa-hand-holding-dollar"></i></div>
+          <div class="stat-label">Monthly Net</div>
+          <div class="stat-value" id="ps-net" style="color:#10b981">12,144</div>
+          <div class="stat-sub">In-hand after PF</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(6,182,212,0.15);color:#06b6d4"><i class="fa fa-calendar"></i></div>
+          <div class="stat-label">Working Days</div>
+          <div class="stat-value" id="ps-days">26</div>
+          <div class="stat-sub">Per month</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981"><i class="fa fa-coins"></i></div>
+          <div class="stat-label">Per Day Rate</div>
+          <div class="stat-value" id="ps-perday">530.77</div>
+          <div class="stat-sub">Gross ÷ Working days</div>
+        </div>
+        <div class="glass-card stat-card">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b"><i class="fa fa-clock"></i></div>
+          <div class="stat-label">Overtime Rate</div>
+          <div class="stat-value" id="ps-ot-rate">1.5x</div>
+          <div class="stat-sub">Per day multiplier</div>
+        </div>
+      </div>
+
+      <!-- Work Streak + Productivity -->
+      <div class="dashboard-grid" style="margin-bottom:24px">
+        <div class="glass-card streak-card">
+          <div style="font-size:0.75rem;color:#f59e0b;text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px">🔥 Current Work Streak</div>
+          <div class="streak-number" id="streak-count">0</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:4px">consecutive days</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px" id="streak-msg">Mark attendance to start your streak!</div>
+        </div>
+        <div class="glass-card stat-card" style="border-color:rgba(59,130,246,0.25)">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6"><i class="fa fa-trophy"></i></div>
+          <div class="stat-label">Productivity Score</div>
+          <div class="stat-value" id="productivity-score" style="color:#3b82f6">0%</div>
+          <div class="stat-sub" id="productivity-label">Based on this month</div>
+        </div>
+      </div>
+
+      <!-- Salary Hike Calculator -->
+      <div class="glass-card hike-card">
+        <div class="section-title" style="margin-bottom:16px"><i class="fa fa-arrow-trend-up" style="color:var(--accent-green)"></i> Salary Hike Calculator</div>
+        <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px">Drag to see your salary after a hike:</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <span style="font-size:0.8rem;color:var(--text-muted)">0%</span>
+          <input type="range" class="hike-slider" id="hike-slider" min="0" max="100" value="10" oninput="updateHikeCalc(this.value)" style="flex:1;min-width:120px">
+          <span style="font-size:0.8rem;color:var(--text-muted)">100%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:16px">
+          <div style="padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">Hike %</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--accent-purple)" id="hike-pct-display">10%</div>
+          </div>
+          <div style="padding:14px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;text-align:center">
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:4px">New Gross</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--accent-cyan)" id="hike-new-gross">₹0</div>
+          </div>
+          <div style="padding:14px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;text-align:center">
+            <div style="font-size:0.7rem;color:#10b981;margin-bottom:4px">New Net In-Hand</div>
+            <div style="font-size:1.4rem;font-weight:800;color:#10b981" id="hike-new-net">₹0</div>
+          </div>
+          <div style="padding:14px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:12px;text-align:center">
+            <div style="font-size:0.7rem;color:var(--accent-purple);margin-bottom:4px">Monthly Gain</div>
+            <div style="font-size:1.4rem;font-weight:800;color:var(--accent-purple)" id="hike-gain">+₹0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="glass-card notes-card">
+        <div class="section-title" style="margin-bottom:12px"><i class="fa fa-note-sticky" style="color:var(--accent-orange)"></i> Work Notes</div>
+        <textarea class="notes-textarea" id="work-notes" placeholder="Add notes, reminders, or anything work-related..." oninput="saveNotes(this.value)"></textarea>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:6px">Auto-saved to device</div>
+      </div>
+
+      <!-- PIN Change -->
+      <div class="glass-card" style="padding:24px">
+        <div class="section-title" style="margin-bottom:16px"><i class="fa fa-lock"></i> Security Settings</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <input type="password" id="new-pin" placeholder="New 4-digit PIN" maxlength="4"
+            style="background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-primary);font-family:'Inter',sans-serif;font-size:0.875rem;width:180px;outline:none">
+          <button onclick="changePin()" class="export-btn primary" style="padding:10px 20px">
+            <i class="fa fa-key"></i> Change PIN
+          </button>
+          <span id="pin-change-msg" style="font-size:0.8rem;color:var(--accent-green)"></span>
+        </div>
+      </div>
+    </div><!-- /profile -->
+
+  </main><!-- /main-content -->
+</div><!-- /app -->
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bottom-nav">
+  <div class="bottom-nav-items">
+    <div class="bottom-nav-item active" id="bnav-dashboard" onclick="showSection('dashboard',null);setBottomNav('dashboard')">
+      <i class="fa fa-gauge-high"></i><span>Dashboard</span>
+    </div>
+    <div class="bottom-nav-item" id="bnav-calendar" onclick="showSection('calendar',null);setBottomNav('calendar')">
+      <i class="fa fa-calendar-days"></i><span>Attendance</span>
+    </div>
+    <div class="bottom-nav-item" id="bnav-analytics" onclick="showSection('analytics',null);setBottomNav('analytics')">
+      <i class="fa fa-chart-line"></i><span>Analytics</span>
+    </div>
+    <div class="bottom-nav-item" id="bnav-export" onclick="showSection('export',null);setBottomNav('export')">
+      <i class="fa fa-download"></i><span>Export</span>
+    </div>
+    <div class="bottom-nav-item" id="bnav-profile" onclick="showSection('profile',null);setBottomNav('profile')">
+      <i class="fa fa-user"></i><span>Profile</span>
+    </div>
+  </div>
+</div>
+<script>
+// 
+//  SALARYPRO  CORE JAVASCRIPT
+// 
+
+// ═══════════════════════════════════════════════════════════
+//  USER PROFILE SYSTEM — Dynamic salary constants
+// ═══════════════════════════════════════════════════════════
+
+function getProfile() {
+  const defaults = {
+    name: 'Rahul Kumar',
+    role: 'Software Developer',
+    company: '',
+    salary: 13800,
+    workingDays: 26,
+    pfRate: 12,
+    otRate: 1.5
+  };
+  try { return { ...defaults, ...JSON.parse(localStorage.getItem('sp_profile') || '{}') }; }
+  catch { return defaults; }
+}
+function saveProfile(p) { localStorage.setItem('sp_profile', JSON.stringify(p)); }
+
+// Load profile into live constants (called on every init)
+function loadProfileConstants() {
+  const p = getProfile();
+  window.MONTHLY_SALARY   = p.salary;
+  window.TOTAL_WORKING_DAYS = p.workingDays;
+  window.PF_RATE          = p.pfRate / 100;
+  window.OT_RATE          = p.otRate;
+  window.PER_DAY          = p.salary / p.workingDays;
+  window.PF_MONTHLY       = p.salary * (p.pfRate / 100);
+  window.NET_MONTHLY      = p.salary - window.PF_MONTHLY;
+}
+
+// ── Onboarding ───────────────────────────────────────────────
+let obPinValue = '';
+let currentObStep = 0;
+
+function showOnboarding() {
+  const screen = document.getElementById('onboarding-screen');
+  screen.classList.add('show');
+}
+
+function obNext(step, back) {
+  // Validate current step before moving forward
+  if (!back) {
+    if (currentObStep === 0) {
+      const name = document.getElementById('ob-name').value.trim();
+      if (!name) { showToastNotif('Required', 'Please enter your name.', 'warning'); return; }
+    }
+    if (currentObStep === 1) {
+      const sal = parseFloat(document.getElementById('ob-salary').value);
+      const days = parseInt(document.getElementById('ob-days').value);
+      if (!sal || sal < 1000) { showToastNotif('Invalid', 'Enter a valid salary (min ₹1,000).', 'warning'); return; }
+      if (!days || days < 1 || days > 31) { showToastNotif('Invalid', 'Working days must be 1–31.', 'warning'); return; }
+    }
+  }
+
+  // Hide current step
+  document.getElementById('ob-step-' + currentObStep).classList.remove('active');
+  document.getElementById('ob-dot-' + currentObStep).classList.remove('active');
+
+  currentObStep = back ? step - 1 : step;
+
+  document.getElementById('ob-step-' + currentObStep).classList.add('active');
+  document.getElementById('ob-dot-' + currentObStep).classList.add('active');
+}
+
+function obPinPress(digit) {
+  if (obPinValue.length >= 4) return;
+  obPinValue += digit;
+  updateObPinDots();
+  if (obPinValue.length === 4) setTimeout(finishOnboarding, 300);
+}
+function obPinDelete() {
+  obPinValue = obPinValue.slice(0, -1);
+  updateObPinDots();
+}
+function updateObPinDots() {
+  for (let i = 0; i < 4; i++) {
+    const d = document.getElementById('ob-dot-pin-' + i);
+    if (d) d.classList.toggle('filled', i < obPinValue.length);
+  }
+}
+
+function finishOnboarding() {
+  if (obPinValue.length < 4) {
+    document.getElementById('ob-pin-error').textContent = 'Please enter a 4-digit PIN.';
+    obPinValue = ''; updateObPinDots(); return;
+  }
+
+  // Save profile
+  const profile = {
+    name: document.getElementById('ob-name').value.trim() || 'User',
+    role: document.getElementById('ob-role').value.trim() || 'Employee',
+    company: document.getElementById('ob-company').value.trim() || '',
+    salary: parseFloat(document.getElementById('ob-salary').value) || 13800,
+    workingDays: parseInt(document.getElementById('ob-days').value) || 26,
+    pfRate: parseFloat(document.getElementById('ob-pf').value) || 12,
+    otRate: parseFloat(document.getElementById('ob-ot').value) || 1.5
+  };
+  saveProfile(profile);
+  localStorage.setItem('sp_pin', obPinValue);
+  localStorage.setItem('sp_onboarded', '1');
+  currentPin = obPinValue;
+
+  // Hide onboarding, show PIN screen
+  document.getElementById('onboarding-screen').classList.remove('show');
+  loadProfileConstants();
+  applyProfileToUI();
+
+  // Show PIN screen
+  const ps = document.getElementById('pin-screen');
+  ps.classList.add('show');
+  ps.classList.remove('hide');
+}
+
+// ── Apply profile to all UI elements ────────────────────────
+function applyProfileToUI() {
+  const p = getProfile();
+  const initials = p.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+  // Sidebar
+  const sAvatar = document.getElementById('sidebar-avatar');
+  const sName   = document.getElementById('sidebar-name');
+  const sRole   = document.getElementById('sidebar-role');
+  if (sAvatar) sAvatar.textContent = initials;
+  if (sName)   sName.textContent   = p.name;
+  if (sRole)   sRole.textContent   = p.role;
+
+  // Profile section
+  const pAvatar  = document.getElementById('profile-avatar-big');
+  const pName    = document.getElementById('profile-name-display');
+  const pRole    = document.getElementById('profile-role-display');
+  const pCompany = document.getElementById('profile-company-display');
+  if (pAvatar)  pAvatar.textContent  = initials;
+  if (pName)    pName.textContent    = p.name;
+  if (pRole)    pRole.textContent    = p.role;
+  if (pCompany) pCompany.textContent = p.company ? '🏢 ' + p.company : '';
+
+  // Profile stats
+  const pfAmt = p.salary * (p.pfRate / 100);
+  const netAmt = p.salary - pfAmt;
+  const perDay = p.salary / p.workingDays;
+  setText('ps-gross',   '₹' + Math.round(p.salary).toLocaleString('en-IN'));
+  setText('ps-pf',      '₹' + Math.round(pfAmt).toLocaleString('en-IN'));
+  setText('ps-pf-sub',  p.pfRate + '% of gross');
+  setText('ps-net',     '₹' + Math.round(netAmt).toLocaleString('en-IN'));
+  setText('ps-days',    p.workingDays);
+  setText('ps-perday',  '₹' + perDay.toFixed(2));
+  setText('ps-ot-rate', p.otRate + 'x');
+
+  // Hero card
+  setText('per-day-display', fmt(perDay));
+
+  // Update hike calculator
+  updateHikeCalc(document.getElementById('hike-slider') ? document.getElementById('hike-slider').value : 10);
+
+  // Load notes
+  const notes = document.getElementById('work-notes');
+  if (notes) notes.value = localStorage.getItem('sp_notes') || '';
+
+  // Streak + productivity
+  updateStreakAndProductivity();
+}
+
+// ── Edit Profile Modal ───────────────────────────────────────
+function openEditModal() {
+  const p = getProfile();
+  document.getElementById('edit-name').value    = p.name;
+  document.getElementById('edit-role').value    = p.role;
+  document.getElementById('edit-company').value = p.company;
+  document.getElementById('edit-salary').value  = p.salary;
+  document.getElementById('edit-days').value    = p.workingDays;
+  document.getElementById('edit-pf').value      = p.pfRate;
+  document.getElementById('edit-ot').value      = p.otRate;
+  document.getElementById('edit-modal-msg').textContent = '';
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+}
+
+function saveProfileEdit() {
+  const name   = document.getElementById('edit-name').value.trim();
+  const salary = parseFloat(document.getElementById('edit-salary').value);
+  const days   = parseInt(document.getElementById('edit-days').value);
+  const pf     = parseFloat(document.getElementById('edit-pf').value);
+  const ot     = parseFloat(document.getElementById('edit-ot').value);
+
+  if (!name)                    { showToastNotif('Required', 'Name cannot be empty.', 'warning'); return; }
+  if (!salary || salary < 1000) { showToastNotif('Invalid', 'Enter a valid salary.', 'warning'); return; }
+  if (!days || days < 1 || days > 31) { showToastNotif('Invalid', 'Working days must be 1–31.', 'warning'); return; }
+
+  const profile = {
+    name,
+    role:    document.getElementById('edit-role').value.trim() || 'Employee',
+    company: document.getElementById('edit-company').value.trim(),
+    salary,
+    workingDays: days,
+    pfRate: isNaN(pf) ? 12 : Math.min(Math.max(pf, 0), 30),
+    otRate: isNaN(ot) ? 1.5 : Math.min(Math.max(ot, 1), 5)
+  };
+  saveProfile(profile);
+  loadProfileConstants();
+  applyProfileToUI();
+  updateDashboard();
+  updateExportPreview();
+
+  const msg = document.getElementById('edit-modal-msg');
+  msg.textContent = '✅ Profile saved successfully!';
+  setTimeout(() => { msg.textContent = ''; closeEditModal(); }, 1500);
+
+  addNotification('✅ Profile Updated', `Name: ${name} | Salary: ₹${salary.toLocaleString('en-IN')} | Net: ₹${Math.round(salary - salary*(pf/100)).toLocaleString('en-IN')}`, 'system');
+}
+
+// ── Streak & Productivity ────────────────────────────────────
+function updateStreakAndProductivity() {
+  const data = getAttData();
+  const now  = new Date();
+
+  // Calculate streak (consecutive present/overtime/halfday days going back from today)
+  let streak = 0;
+  let d = new Date(now);
+  for (let i = 0; i < 60; i++) {
+    const ds = d.toISOString().split('T')[0];
+    const dow = d.getDay();
+    if (dow === 0) { d.setDate(d.getDate() - 1); continue; } // skip Sunday
+    const status = data[ds];
+    if (status === 'present' || status === 'overtime' || status === 'halfday') {
+      streak++;
+    } else if (status === 'absent') {
+      break;
+    } else {
+      // unmarked — if it's today or future, skip; else break
+      if (ds >= now.toISOString().split('T')[0]) { d.setDate(d.getDate() - 1); continue; }
+      break;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+
+  setText('streak-count', streak);
+  const streakMsgs = ['Mark attendance to start your streak!', '🔥 Keep it up!', '🔥🔥 On fire!', '🔥🔥🔥 Unstoppable!', '⚡ Legend mode!'];
+  const msgIdx = streak === 0 ? 0 : streak < 5 ? 1 : streak < 10 ? 2 : streak < 20 ? 3 : 4;
+  setText('streak-msg', streakMsgs[msgIdx]);
+
+  // Productivity score = (present + overtime*1.5 + halfday*0.5) / workingDays * 100
+  const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  let score = 0, total = 0;
+  Object.entries(data).forEach(([k, v]) => {
+    if (!k.startsWith(prefix)) return;
+    if (v === 'present') score += 1;
+    else if (v === 'overtime') score += 1.5;
+    else if (v === 'halfday') score += 0.5;
+    total++;
+  });
+  const pct = TOTAL_WORKING_DAYS > 0 ? Math.min((score / TOTAL_WORKING_DAYS) * 100, 100) : 0;
+  setText('productivity-score', pct.toFixed(0) + '%');
+  const labels = ['No data yet', 'Needs improvement', 'Average', 'Good', 'Excellent! 🏆'];
+  const li = pct === 0 ? 0 : pct < 40 ? 1 : pct < 70 ? 2 : pct < 90 ? 3 : 4;
+  setText('productivity-label', labels[li]);
+}
+
+// ── Hike Calculator ──────────────────────────────────────────
+function updateHikeCalc(val) {
+  const pct = parseFloat(val) || 0;
+  const newGross = MONTHLY_SALARY * (1 + pct / 100);
+  const newNet   = newGross * (1 - PF_RATE);
+  const gain     = newGross - MONTHLY_SALARY;
+  setText('hike-pct-display', pct + '%');
+  setText('hike-new-gross',   '₹' + Math.round(newGross).toLocaleString('en-IN'));
+  setText('hike-new-net',     '₹' + Math.round(newNet).toLocaleString('en-IN'));
+  setText('hike-gain',        '+₹' + Math.round(gain).toLocaleString('en-IN'));
+}
+
+// ── Notes ────────────────────────────────────────────────────
+function saveNotes(val) {
+  localStorage.setItem('sp_notes', val);
+}
+
+const MONTHLY_SALARY   = 13800;
+const TOTAL_WORKING_DAYS = 26;
+const PER_DAY          = MONTHLY_SALARY / TOTAL_WORKING_DAYS;
+const PF_RATE          = 0.12;
+const PF_MONTHLY       = MONTHLY_SALARY * PF_RATE;
+const NET_MONTHLY      = MONTHLY_SALARY - PF_MONTHLY;
+const OT_RATE          = 1.5;
+
+//  STATE 
+let currentPin = localStorage.getItem('sp_pin') || '1234';
+let pinInput = '';
+let viewYear, viewMonth; // calendar view
+let selectedDay = null;
+let popupOpen = false;
+let charts = {};
+let isDark = true;
+
+//  ATTENDANCE DATA 
+// Key: "YYYY-MM-DD"  value: 'present'|'absent'|'halfday'|'overtime'|'holiday'
+function getAttData() {
+  try { return JSON.parse(localStorage.getItem('sp_att') || '{}'); } catch { return {}; }
+}
+function saveAttData(d) { localStorage.setItem('sp_att', JSON.stringify(d)); }
+
+//  INIT 
+window.addEventListener('DOMContentLoaded', () => {
+  // Load dynamic profile constants first
+  loadProfileConstants();
+
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+
+  // Loading screen
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hide');
+
+    const onboarded = localStorage.getItem('sp_onboarded');
+    if (!onboarded) {
+      // First launch — show onboarding
+      showOnboarding();
+    } else {
+      // Returning user — show PIN screen
+      const ps = document.getElementById('pin-screen');
+      ps.classList.add('show');
+      ps.classList.remove('hide');
+    }
+  }, 2200);
+
+  startClock();
+  updateMonthBadge();
+});
+
+//  CLOCK 
+function startClock() {
+  function tick() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const el = document.getElementById('clock');
+    if (el) el.textContent = `${h}:${m}:${s}`;
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+function updateMonthBadge() {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const el = document.getElementById('month-badge');
+  if (el) el.textContent = `${months[now.getMonth()]} ${now.getFullYear()}`;
+}
+
+//  PIN LOGIC 
+function pinPress(digit) {
+  if (pinInput.length >= 4) return;
+  pinInput += digit;
+  updatePinDots();
+  if (pinInput.length === 4) {
+    setTimeout(checkPin, 200);
+  }
+}
+
+function pinDelete() {
+  pinInput = pinInput.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    if (dot) dot.classList.toggle('filled', i < pinInput.length);
+  }
+}
+
+function checkPin() {
+  if (pinInput === currentPin) {
+    const ps = document.getElementById('pin-screen');
+    ps.classList.add('hide');
+    ps.classList.remove('show');
+    const app = document.getElementById('app');
+    app.style.display = 'flex';
+    setTimeout(() => app.classList.add('visible'), 50);
+    initApp();
+  } else {
+    document.getElementById('pin-error').textContent = ' Incorrect PIN. Try again.';
+    pinInput = '';
+    updatePinDots();
+    // Shake animation
+    const card = document.querySelector('.pin-card');
+    card.style.animation = 'none';
+    card.offsetHeight;
+    card.style.animation = 'bounceIn 0.4s ease';
+  }
+}
+
+function changePin() {
+  const newPin = document.getElementById('new-pin').value.trim();
+  const msg = document.getElementById('pin-change-msg');
+  if (!/^\d{4}$/.test(newPin)) {
+    msg.style.color = 'var(--accent-pink)';
+    msg.textContent = ' PIN must be exactly 4 digits.';
+    return;
+  }
+  currentPin = newPin;
+  localStorage.setItem('sp_pin', newPin);
+  msg.style.color = 'var(--accent-green)';
+  msg.textContent = ' PIN updated successfully!';
+  document.getElementById('new-pin').value = '';
+  setTimeout(() => msg.textContent = '', 3000);
+}
+
+//  APP INIT 
+function initApp() {
+  loadProfileConstants();
+  applyProfileToUI();
+  renderCalendar();
+  updateDashboard();
+  updateExportPreview();
+  initNotifications();
+  // Charts rendered lazily when analytics section is shown
+}
+
+//  SECTION NAVIGATION 
+function showSection(name, navEl) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const sec = document.getElementById(`section-${name}`);
+  if (sec) sec.classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+
+  const titles = {dashboard:'Dashboard',calendar:'Attendance Calendar',analytics:'Analytics',export:'Export Reports',profile:'Profile'};
+  const el = document.getElementById('section-title');
+  if (el) el.textContent = titles[name] || name;
+
+  if (name === 'analytics') {
+    setTimeout(renderCharts, 100);
+  }
+  if (name === 'calendar') {
+    renderCalendar();
+  }
+  if (name === 'export') {
+    updateExportPreview();
+  }
+  if (name === 'profile') {
+    updateStreakAndProductivity();
+    updateHikeCalc(document.getElementById('hike-slider') ? document.getElementById('hike-slider').value : 10);
+  }
+  closeSidebar();
+}
+
+function setBottomNav(name) {
+  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById(`bnav-${name}`);
+  if (el) el.classList.add('active');
+  // Also sync sidebar nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(`'${name}'`)) {
+      n.classList.add('active');
+    }
+  });
+}
+
+//  SIDEBAR 
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+
+//  THEME 
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  const sw = document.getElementById('theme-switch');
+  if (sw) sw.classList.toggle('on', !isDark);
+  // Re-render charts with new theme
+  if (document.getElementById('section-analytics').classList.contains('active')) {
+    setTimeout(renderCharts, 100);
+  }
+}
+
+//  SALARY CALCULATION 
+function calcSalary(data, year, month) {
+  let present = 0, absent = 0, half = 0, overtime = 0, holiday = 0;
+  const prefix = `${year}-${String(month+1).padStart(2,'0')}`;
+  Object.entries(data).forEach(([k, v]) => {
+    if (!k.startsWith(prefix)) return;
+    if (v === 'present') present++;
+    else if (v === 'absent') absent++;
+    else if (v === 'halfday') half++;
+    else if (v === 'overtime') overtime++;
+    else if (v === 'holiday') holiday++;
+  });
+
+  // Salary logic:
+  // Present = full day pay
+  // Half day = 0.5 day pay
+  // Overtime = 1.5x day pay
+  // Holiday = full day pay (paid holiday)
+  // Absent = no pay
+  const effectiveDays = present + (half * 0.5) + (overtime * OT_RATE) + holiday;
+  const earned = Math.min(effectiveDays * PER_DAY, MONTHLY_SALARY);
+  const halfDeduction = half * (PER_DAY * 0.5);
+  const otBonus = overtime * (PER_DAY * (OT_RATE - 1));
+  const remaining = Math.max(MONTHLY_SALARY - earned, 0);
+
+  // PF Calculation — 12% deducted proportionally on earned salary
+  const pfDeducted = earned * PF_RATE;            // 12% of earned so far
+  const netEarned  = earned - pfDeducted;          // In-hand after PF
+  const netRemaining = remaining * (1 - PF_RATE); // Remaining in-hand
+
+  return { present, absent, half, overtime, holiday, effectiveDays, earned, halfDeduction, otBonus, remaining, pfDeducted, netEarned, netRemaining };
+}
+
+//  DASHBOARD UPDATE 
+function updateDashboard() {
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+
+  // Animate counter
+  animateCounter('earned-counter', s.earned, true);
+
+  // Stats
+  setText('stat-present', s.present);
+  setText('stat-absent', s.absent);
+  setText('stat-half', s.half);
+  setText('stat-overtime', s.overtime);
+  setText('stat-holiday', s.holiday);
+  setText('stat-remaining', `${fmt(s.remaining)}`);
+  setText('days-worked-label', `${s.effectiveDays.toFixed(1)} effective days worked`);
+  setText('per-day-display', fmt(PER_DAY));
+
+  // Trends
+  setText('trend-present', `+${s.present}`);
+  setText('trend-absent', s.absent);
+  setText('trend-ot', `+${s.overtime}`);
+
+  // Progress bar
+  const pct = Math.min((s.earned / MONTHLY_SALARY) * 100, 100);
+  const bar = document.getElementById('salary-bar');
+  if (bar) bar.style.width = pct + '%';
+  setText('salary-pct', pct.toFixed(1) + '%');
+
+  // Circle
+  const circumference = 364.4;
+  const attPct = Math.min((s.effectiveDays / TOTAL_WORKING_DAYS) * 100, 100);
+  const offset = circumference - (attPct / 100) * circumference;
+  const circle = document.getElementById('att-circle');
+  if (circle) circle.style.strokeDashoffset = offset;
+  setText('circle-pct', attPct.toFixed(0) + '%');
+  setText('circle-days', `${s.effectiveDays.toFixed(1)}/${TOTAL_WORKING_DAYS}`);
+
+  // Breakdown bars
+  setBar('bar-earned', (s.earned / MONTHLY_SALARY) * 100);
+  setBar('bar-half', (s.halfDeduction / MONTHLY_SALARY) * 100);
+  setBar('bar-ot', (s.otBonus / MONTHLY_SALARY) * 100);
+  setBar('bar-pf', (s.pfDeducted / MONTHLY_SALARY) * 100);
+  setBar('bar-rem', (s.remaining / MONTHLY_SALARY) * 100);
+  setText('breakdown-earned', `${fmt(s.earned)}`);
+  setText('breakdown-half', `-${fmt(s.halfDeduction)}`);
+  setText('breakdown-ot', `+${fmt(s.otBonus)}`);
+  setText('breakdown-pf', `-${fmt(s.pfDeducted)}`);
+  setText('breakdown-rem', `${fmt(s.remaining)}`);
+
+  // PF & Net Salary cards
+  setText('stat-pf', fmt(s.pfDeducted));
+  setText('stat-net', fmt(s.netEarned));
+  setText('stat-net-monthly', fmt(NET_MONTHLY));
+  setText('net-earned-hero', fmt(s.netEarned));
+  setText('pf-deducted-hero', fmt(s.pfDeducted));
+
+  // AI Prediction
+  updateAIPrediction(s);
+
+  // Summary table
+  updateSummaryTable(s);
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+function setBar(id, pct) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = Math.min(Math.max(pct, 0), 100) + '%';
+}
+function fmt(n) {
+  return Number(n.toFixed(2)).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function animateCounter(id, target, currency) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const duration = 1200;
+  const start = performance.now();
+  const startVal = 0;
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const current = startVal + (target - startVal) * ease;
+    el.textContent = (currency ? '' : '') + fmt(current);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+//  AI PREDICTION 
+function updateAIPrediction(s) {
+  const now = new Date();
+  const remainingWorkDays = Math.max(TOTAL_WORKING_DAYS - s.effectiveDays, 0);
+  const projectedGross = Math.min(s.earned + (remainingWorkDays * PER_DAY), MONTHLY_SALARY);
+  const projectedNet   = projectedGross * (1 - PF_RATE);
+
+  const textEl = document.getElementById('ai-prediction-text');
+  if (textEl) {
+    if (s.effectiveDays === 0) {
+      textEl.innerHTML = `🤖 No attendance marked yet. Mark your attendance to see salary predictions.<br>
+        Per-day rate: <span>₹${fmt(PER_DAY)}</span> &nbsp;|&nbsp;
+        Full month gross: <span>₹${fmt(MONTHLY_SALARY)}</span> &nbsp;|&nbsp;
+        Full month net (after 12% PF): <span>₹${fmt(NET_MONTHLY)}</span>`;
+    } else {
+      const daysNeeded = Math.ceil((MONTHLY_SALARY - s.earned) / PER_DAY);
+      textEl.innerHTML = `🤖 You've earned <span>₹${fmt(s.earned)}</span> gross (<span>₹${fmt(s.netEarned)}</span> net after PF) 
+        with <span>${s.effectiveDays.toFixed(1)} effective days</span>.<br>
+        If you work all remaining <span>${remainingWorkDays.toFixed(0)} days</span> → 
+        Projected gross: <span>₹${fmt(projectedGross)}</span> | 
+        Net in-hand: <span>₹${fmt(projectedNet)}</span>.<br>
+        You need <span>${daysNeeded} more days</span> to reach full gross salary of <span>₹${fmt(MONTHLY_SALARY)}</span> 
+        (net: <span>₹${fmt(NET_MONTHLY)}</span>).`;
+    }
+  }
+
+  // Scenarios — show both gross and net
+  const scenEl = document.getElementById('ai-scenarios');
+  if (scenEl) {
+    const scenarios = [5, 10, 15, 20, 26];
+    scenEl.innerHTML = scenarios.map(days => {
+      const gross = Math.min((s.effectiveDays + days) * PER_DAY, MONTHLY_SALARY);
+      const net   = gross * (1 - PF_RATE);
+      return `<div class="ai-scenario">
+        <div class="ai-scenario-days">+${days}</div>
+        <div class="ai-scenario-label">more days</div>
+        <div class="ai-scenario-salary">₹${fmt(gross)}</div>
+        <div style="font-size:0.68rem;color:#10b981;margin-top:2px">Net: ₹${fmt(net)}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+//  SUMMARY TABLE 
+function updateSummaryTable(s) {
+  const tbody = document.getElementById('summary-tbody');
+  if (!tbody) return;
+  const rows = [
+    { type: '✅ Present',      days: s.present,              impact: `+${s.present} × ₹${fmt(PER_DAY)}`,                  amount: `₹${fmt(s.present * PER_DAY)}`,              color: '#10b981' },
+    { type: '❌ Absent',       days: s.absent,               impact: `₹0 pay`,                                              amount: `₹0.00`,                                     color: '#ec4899' },
+    { type: '🌓 Half Day',     days: s.half,                 impact: `+${s.half} × ₹${fmt(PER_DAY * 0.5)}`,               amount: `₹${fmt(s.half * PER_DAY * 0.5)}`,           color: '#f59e0b' },
+    { type: '⏰ Overtime',     days: s.overtime,             impact: `+${s.overtime} × ₹${fmt(PER_DAY * OT_RATE)}`,       amount: `₹${fmt(s.overtime * PER_DAY * OT_RATE)}`,   color: '#06b6d4' },
+    { type: '🎉 Holiday',      days: s.holiday,              impact: `+${s.holiday} × ₹${fmt(PER_DAY)}`,                  amount: `₹${fmt(s.holiday * PER_DAY)}`,              color: '#8b5cf6' },
+    { type: '💰 Gross Earned', days: s.effectiveDays.toFixed(1), impact: 'Before PF',                          amount: `₹${fmt(s.earned)}`,                   color: '#3b82f6' },
+    { type: '🛡 PF Deducted',  days: '—',                   impact: `12% of ₹${fmt(s.earned)}`,               amount: `-₹${fmt(s.pfDeducted)}`,              color: '#ec4899' },
+    { type: '🤑 Net In-Hand',  days: '—',                   impact: 'After PF deduction',                      amount: `₹${fmt(s.netEarned)}`,                color: '#10b981' },
+  ];
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td style="color:${r.color};font-weight:600">${r.type}</td>
+      <td>${r.days}</td>
+      <td style="color:var(--text-secondary)">${r.impact}</td>
+      <td style="font-weight:700;color:${r.color}">${r.amount}</td>
+    </tr>`).join('');
+}
+
+//  CALENDAR 
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const EMOJIS = { present:'', absent:'', halfday:'', overtime:'', holiday:'' };
+
+function renderCalendar() {
+  const grid = document.getElementById('calendar-grid');
+  const label = document.getElementById('cal-month-year');
+  if (!grid || !label) return;
+
+  label.textContent = `${MONTHS[viewMonth]} ${viewYear}`;
+
+  const data = getAttData();
+  const today = new Date();
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+  let html = DAYS.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    html += `<div class="cal-day empty"></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const status = data[dateStr] || null;
+    const isToday = (d === today.getDate() && viewMonth === today.getMonth() && viewYear === today.getFullYear());
+    const dayOfWeek = new Date(viewYear, viewMonth, d).getDay();
+    const isSunday = dayOfWeek === 0;
+
+    let classes = 'cal-day';
+    if (status) classes += ` ${status}`;
+    if (isToday) classes += ' today';
+    if (isSunday && !status) classes += ' sunday';
+
+    const emoji = status ? `<span class="cal-day-emoji">${EMOJIS[status]}</span>` : '';
+    html += `<div class="${classes}" onclick="openPopup(${d}, '${dateStr}', event)">${d}${emoji}</div>`;
+  }
+
+  grid.innerHTML = html;
+
+  // Update badge
+  const marked = Object.keys(data).filter(k => k.startsWith(`${viewYear}-${String(viewMonth+1).padStart(2,'0')}`)).length;
+  const badge = document.getElementById('cal-summary-badge');
+  if (badge) badge.textContent = `${marked} days marked`;
+}
+
+function changeMonth(dir) {
+  viewMonth += dir;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderCalendar();
+}
+
+//  ATTENDANCE POPUP 
+let popupDateStr = null;
+
+function openPopup(day, dateStr, event) {
+  popupDateStr = dateStr;
+  const popup = document.getElementById('att-popup');
+  const title = document.getElementById('popup-date-title');
+  if (!popup) return;
+
+  const d = new Date(dateStr);
+  title.textContent = `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+
+  // Position popup near click
+  const x = Math.min(event.clientX, window.innerWidth - 220);
+  const y = Math.min(event.clientY, window.innerHeight - 280);
+  popup.style.left = x + 'px';
+  popup.style.top = y + 'px';
+  popup.style.display = 'block';
+  popupOpen = true;
+
+  // Close on outside click
+  setTimeout(() => {
+    document.addEventListener('click', outsidePopupClose, { once: true });
+  }, 100);
+}
+
+function outsidePopupClose(e) {
+  const popup = document.getElementById('att-popup');
+  if (popup && !popup.contains(e.target)) {
+    closePopup();
+  }
+}
+
+function closePopup() {
+  const popup = document.getElementById('att-popup');
+  if (popup) popup.style.display = 'none';
+  popupOpen = false;
+  popupDateStr = null;
+}
+
+function markDay(status) {
+  if (!popupDateStr) return;
+  const data = getAttData();
+  if (status === null) {
+    delete data[popupDateStr];
+  } else {
+    data[popupDateStr] = status;
+  }
+  saveAttData(data);
+  closePopup();
+  renderCalendar();
+  updateDashboard();
+}
+
+//  CHARTS 
+function renderCharts() {
+  const data = getAttData();
+  const now = new Date();
+  const textColor = isDark ? '#9090b0' : '#4a4a6a';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+  const chartDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { color: textColor, font: { family: 'Inter', size: 11 } } }
+    },
+    scales: {
+      x: { ticks: { color: textColor, font: { family: 'Inter', size: 10 } }, grid: { color: gridColor } },
+      y: { ticks: { color: textColor, font: { family: 'Inter', size: 10 } }, grid: { color: gridColor } }
+    }
+  };
+
+  //  Weekly Attendance Chart 
+  const weekLabels = ['Week 1','Week 2','Week 3','Week 4'];
+  const weekPresent = [0,0,0,0];
+  const weekAbsent = [0,0,0,0];
+  const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  Object.entries(data).forEach(([k, v]) => {
+    if (!k.startsWith(prefix)) return;
+    const day = parseInt(k.split('-')[2]);
+    const week = Math.min(Math.floor((day - 1) / 7), 3);
+    if (v === 'present' || v === 'overtime') weekPresent[week]++;
+    else if (v === 'absent') weekAbsent[week]++;
+  });
+
+  destroyChart('weeklyChart');
+  const wCtx = document.getElementById('weeklyChart');
+  if (wCtx) {
+    charts.weekly = new Chart(wCtx, {
+      type: 'bar',
+      data: {
+        labels: weekLabels,
+        datasets: [
+          { label: 'Present', data: weekPresent, backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6 },
+          { label: 'Absent', data: weekAbsent, backgroundColor: 'rgba(236,72,153,0.7)', borderRadius: 6 }
+        ]
+      },
+      options: { ...chartDefaults, plugins: { ...chartDefaults.plugins } }
+    });
+  }
+
+  //  Monthly Salary Line Chart (last 6 months) 
+  const salaryLabels = [];
+  const salaryData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    salaryLabels.push(MONTHS[d.getMonth()].slice(0,3) + ' ' + d.getFullYear().toString().slice(2));
+    const s = calcSalary(data, d.getFullYear(), d.getMonth());
+    salaryData.push(parseFloat(s.earned.toFixed(2)));
+  }
+
+  destroyChart('salaryChart');
+  const sCtx = document.getElementById('salaryChart');
+  if (sCtx) {
+    charts.salary = new Chart(sCtx, {
+      type: 'line',
+      data: {
+        labels: salaryLabels,
+        datasets: [{
+          label: 'Earned Salary ()',
+          data: salaryData,
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139,92,246,0.1)',
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#8b5cf6',
+          pointRadius: 5
+        }]
+      },
+      options: { ...chartDefaults }
+    });
+  }
+
+  //  Pie Chart 
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+  destroyChart('pieChart');
+  const pCtx = document.getElementById('pieChart');
+  if (pCtx) {
+    charts.pie = new Chart(pCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Present','Absent','Half Day','Overtime','Holiday'],
+        datasets: [{
+          data: [s.present, s.absent, s.half, s.overtime, s.holiday],
+          backgroundColor: ['rgba(16,185,129,0.8)','rgba(236,72,153,0.8)','rgba(245,158,11,0.8)','rgba(6,182,212,0.8)','rgba(139,92,246,0.8)'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Inter', size: 10 }, padding: 12 } }
+        }
+      }
+    });
+  }
+
+  //  Day-wise Breakdown (Mon-Sat) 
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayCounts = [0,0,0,0,0,0];
+  Object.entries(data).forEach(([k, v]) => {
+    if (!k.startsWith(prefix)) return;
+    const dow = new Date(k).getDay(); // 0=Sun
+    if (dow >= 1 && dow <= 6) {
+      if (v === 'present' || v === 'overtime') dayCounts[dow - 1]++;
+    }
+  });
+
+  destroyChart('dayChart');
+  const dCtx = document.getElementById('dayChart');
+  if (dCtx) {
+    charts.day = new Chart(dCtx, {
+      type: 'bar',
+      data: {
+        labels: dayNames,
+        datasets: [{
+          label: 'Present Days',
+          data: dayCounts,
+          backgroundColor: ['rgba(139,92,246,0.7)','rgba(59,130,246,0.7)','rgba(6,182,212,0.7)','rgba(16,185,129,0.7)','rgba(245,158,11,0.7)','rgba(236,72,153,0.7)'],
+          borderRadius: 6
+        }]
+      },
+      options: { ...chartDefaults, plugins: { legend: { display: false } } }
+    });
+  }
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+  // Also destroy by canvas
+  const canvas = document.getElementById(id);
+  if (canvas) {
+    const existing = Chart.getChart(canvas);
+    if (existing) existing.destroy();
+  }
+}
+
+//  EXPORT FUNCTIONS 
+function exportPDF() {
+  // Show print-friendly view
+  const printStyle = document.createElement('style');
+  printStyle.id = 'print-override';
+  printStyle.textContent = `
+    @media print {
+      #section-dashboard { display: block !important; }
+      .section { display: none !important; }
+      #section-dashboard { display: block !important; }
+    }
+  `;
+  document.head.appendChild(printStyle);
+  window.print();
+  setTimeout(() => {
+    const el = document.getElementById('print-override');
+    if (el) el.remove();
+  }, 1000);
+}
+
+function exportCSV() {
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+
+  let csv = 'Date,Day,Status,Salary Impact\n';
+  const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${prefix}-${String(d).padStart(2,'0')}`;
+    const status = data[dateStr] || 'unmarked';
+    const dayName = DAYS[new Date(dateStr).getDay()];
+    let impact = 0;
+    if (status === 'present') impact = PER_DAY;
+    else if (status === 'halfday') impact = PER_DAY * 0.5;
+    else if (status === 'overtime') impact = PER_DAY * 1.5;
+    else if (status === 'holiday') impact = PER_DAY;
+    csv += `${dateStr},${dayName},${status},${impact.toFixed(2)}\n`;
+  }
+
+  csv += `\nSummary\n`;
+  csv += `Monthly Gross Salary,${MONTHLY_SALARY}\n`;
+  csv += `PF Rate,12%\n`;
+  csv += `Monthly PF Deduction,${PF_MONTHLY.toFixed(2)}\n`;
+  csv += `Monthly Net Salary,${NET_MONTHLY.toFixed(2)}\n`;
+  csv += `Per Day Rate,${PER_DAY.toFixed(2)}\n`;
+  csv += `Present Days,${s.present}\n`;
+  csv += `Absent Days,${s.absent}\n`;
+  csv += `Half Days,${s.half}\n`;
+  csv += `Overtime Days,${s.overtime}\n`;
+  csv += `Holidays,${s.holiday}\n`;
+  csv += `Gross Earned,${s.earned.toFixed(2)}\n`;
+  csv += `PF Deducted (12%),${s.pfDeducted.toFixed(2)}\n`;
+  csv += `Net In-Hand,${s.netEarned.toFixed(2)}\n`;
+  csv += `Remaining (Gross),${s.remaining.toFixed(2)}\n`;
+
+  downloadFile('SalaryPro_Report.csv', csv, 'text/csv');
+}
+
+function exportExcel() {
+  // Export as TSV which Excel can open
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+  const prefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+  let tsv = 'Date\tDay\tStatus\tSalary Impact (INR)\n';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${prefix}-${String(d).padStart(2,'0')}`;
+    const status = data[dateStr] || 'unmarked';
+    const dayName = DAYS[new Date(dateStr).getDay()];
+    let impact = 0;
+    if (status === 'present') impact = PER_DAY;
+    else if (status === 'halfday') impact = PER_DAY * 0.5;
+    else if (status === 'overtime') impact = PER_DAY * 1.5;
+    else if (status === 'holiday') impact = PER_DAY;
+    tsv += `${dateStr}\t${dayName}\t${status}\t${impact.toFixed(2)}\n`;
+  }
+  tsv += `\nGross Earned\t\t\t${s.earned.toFixed(2)}\n`;
+  tsv += `PF Deducted (12%)\t\t\t-${s.pfDeducted.toFixed(2)}\n`;
+  tsv += `Net In-Hand\t\t\t${s.netEarned.toFixed(2)}\n`;
+  tsv += `Remaining (Gross)\t\t\t${s.remaining.toFixed(2)}\n`;
+
+  downloadFile('SalaryPro_Report.xls', tsv, 'application/vnd.ms-excel');
+}
+
+function exportJSON() {
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+  const report = {
+    generatedAt: new Date().toISOString(),
+    employee: { name: getProfile().name, designation: getProfile().role, company: getProfile().company },
+    month: `${MONTHS[now.getMonth()]} ${now.getFullYear()}`,
+    salary: {
+      monthlyGross: MONTHLY_SALARY,
+      pfRate: '12%',
+      pfMonthly: parseFloat(PF_MONTHLY.toFixed(2)),
+      monthlyNet: parseFloat(NET_MONTHLY.toFixed(2)),
+      perDay: parseFloat(PER_DAY.toFixed(2)),
+      totalWorkingDays: TOTAL_WORKING_DAYS
+    },
+    attendance: data,
+    summary: {
+      present: s.present, absent: s.absent, halfDay: s.half,
+      overtime: s.overtime, holiday: s.holiday,
+      effectiveDays: parseFloat(s.effectiveDays.toFixed(2)),
+      grossEarned: parseFloat(s.earned.toFixed(2)),
+      pfDeducted: parseFloat(s.pfDeducted.toFixed(2)),
+      netInHand: parseFloat(s.netEarned.toFixed(2)),
+      remaining: parseFloat(s.remaining.toFixed(2))
+    }
+  };
+  downloadFile('SalaryPro_Report.json', JSON.stringify(report, null, 2), 'application/json');
+}
+
+function downloadFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function updateExportPreview() {
+  const el = document.getElementById('export-preview');
+  if (!el) return;
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+  el.innerHTML = `
+    <strong style="color:var(--text-primary)">📋 Report Preview — ${MONTHS[now.getMonth()]} ${now.getFullYear()}</strong><br><br>
+    Employee: <strong>${getProfile().name}</strong> | Designation: <strong>${getProfile().role}</strong><br>
+    Monthly Gross: <strong>₹${fmt(MONTHLY_SALARY)}</strong> | Per Day: <strong>₹${fmt(PER_DAY)}</strong> | PF Rate: <strong>${getProfile().pfRate}%</strong><br><br>
+    ✅ Present: <strong>${s.present} days</strong> &nbsp;|&nbsp;
+    ❌ Absent: <strong>${s.absent} days</strong> &nbsp;|&nbsp;
+    🌓 Half Day: <strong>${s.half} days</strong><br>
+    ⏰ Overtime: <strong>${s.overtime} days</strong> &nbsp;|&nbsp;
+    🎉 Holiday: <strong>${s.holiday} days</strong><br><br>
+    💰 <strong>Gross Earned: ₹${fmt(s.earned)}</strong><br>
+    🛡 <strong style="color:#ec4899">PF Deducted (12%): -₹${fmt(s.pfDeducted)}</strong><br>
+    🤑 <strong style="color:var(--accent-green)">Net In-Hand: ₹${fmt(s.netEarned)}</strong><br>
+    📊 Remaining (Gross): ₹${fmt(s.remaining)}<br>
+    📈 Attendance Rate: ${((s.effectiveDays / TOTAL_WORKING_DAYS) * 100).toFixed(1)}%
+  `;
+}
+
+//  KEYBOARD SUPPORT FOR PIN 
+document.addEventListener('keydown', (e) => {
+  const pinScreen = document.getElementById('pin-screen');
+  if (pinScreen && pinScreen.classList.contains('show')) {
+    if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+    else if (e.key === 'Backspace') pinDelete();
+  }
+});
+
+//  CLOSE POPUP ON ESC 
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closePopup(); closeNotifDrawer(); }
+});
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════
+     NOTIFICATION DRAWER
+════════════════════════════════════════════════════ -->
+<div class="notif-drawer" id="notif-drawer">
+  <div class="notif-drawer-header">
+    <div class="notif-drawer-title">
+      <i class="fa fa-bell" style="color:var(--accent-purple)"></i>
+      Notifications
+      <span id="notif-count-label" style="font-size:0.72rem;color:var(--text-muted);font-weight:400"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="notif-action-btn" onclick="markAllRead()">Mark all read</button>
+      <button class="notif-action-btn" onclick="clearAllNotifs()" style="color:var(--accent-pink);border-color:rgba(236,72,153,0.3)">Clear all</button>
+      <button class="notif-close-btn" onclick="closeNotifDrawer()"><i class="fa fa-times"></i></button>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="notif-filters">
+    <div class="notif-filter active" onclick="filterNotifs('all',this)">All</div>
+    <div class="notif-filter" onclick="filterNotifs('salary',this)">💰 Salary</div>
+    <div class="notif-filter" onclick="filterNotifs('attendance',this)">📅 Attendance</div>
+    <div class="notif-filter" onclick="filterNotifs('reminder',this)">⏰ Reminders</div>
+    <div class="notif-filter" onclick="filterNotifs('system',this)">⚙️ System</div>
+  </div>
+
+  <!-- Permission card (shown if not granted) -->
+  <div class="notif-permission-card" id="notif-permission-card" style="display:none">
+    <i class="fa fa-bell" style="font-size:1.8rem;color:var(--accent-purple)"></i>
+    <p>Enable push notifications to get salary reminders, attendance alerts, and daily updates.</p>
+    <button class="notif-permission-btn" onclick="requestNotifPermission()">
+      <i class="fa fa-bell"></i> Enable Notifications
+    </button>
+  </div>
+
+  <!-- Notification list -->
+  <div class="notif-list" id="notif-list"></div>
+
+  <!-- Settings panel -->
+  <div class="notif-settings-panel">
+    <div class="notif-settings-title"><i class="fa fa-sliders"></i> Notification Settings</div>
+    <div class="notif-setting-row">
+      <span class="notif-setting-label"><i class="fa fa-clock"></i> Daily Attendance Reminder</span>
+      <div class="mini-toggle on" id="toggle-daily" onclick="toggleNotifSetting('daily',this)"><div class="mini-toggle-knob"></div></div>
+    </div>
+    <div class="notif-setting-row">
+      <span class="notif-setting-label"><i class="fa fa-indian-rupee-sign"></i> Salary Milestone Alerts</span>
+      <div class="mini-toggle on" id="toggle-salary" onclick="toggleNotifSetting('salary',this)"><div class="mini-toggle-knob"></div></div>
+    </div>
+    <div class="notif-setting-row">
+      <span class="notif-setting-label"><i class="fa fa-calendar-xmark"></i> Absent Day Warning</span>
+      <div class="mini-toggle on" id="toggle-absent" onclick="toggleNotifSetting('absent',this)"><div class="mini-toggle-knob"></div></div>
+    </div>
+    <div class="notif-setting-row">
+      <span class="notif-setting-label"><i class="fa fa-chart-line"></i> Weekly Summary</span>
+      <div class="mini-toggle" id="toggle-weekly" onclick="toggleNotifSetting('weekly',this)"><div class="mini-toggle-knob"></div></div>
+    </div>
+    <div class="notif-setting-row">
+      <span class="notif-setting-label"><i class="fa fa-moon"></i> Do Not Disturb</span>
+      <div class="mini-toggle" id="toggle-dnd" onclick="toggleNotifSetting('dnd',this)"><div class="mini-toggle-knob"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay for notification drawer -->
+<div class="overlay" id="notif-overlay" onclick="closeNotifDrawer()"></div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════
+     EDIT PROFILE MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa fa-user-pen" style="color:var(--accent-purple)"></i> Edit Profile & Salary</div>
+      <button class="modal-close" onclick="closeEditModal()"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Personal Info</div>
+    <div class="modal-field">
+      <div class="modal-label">Full Name</div>
+      <input class="modal-input" id="edit-name" type="text" maxlength="40" placeholder="Your full name">
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <div class="modal-label">Designation</div>
+        <input class="modal-input" id="edit-role" type="text" maxlength="40" placeholder="Job title">
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">Company</div>
+        <input class="modal-input" id="edit-company" type="text" maxlength="50" placeholder="Company name">
+      </div>
+    </div>
+
+    <div class="modal-divider"></div>
+    <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Salary Settings</div>
+    <div class="modal-field">
+      <div class="modal-label">Monthly Gross Salary (₹)</div>
+      <input class="modal-input" id="edit-salary" type="number" min="1000" max="9999999" placeholder="e.g. 13800">
+    </div>
+    <div class="modal-row">
+      <div class="modal-field">
+        <div class="modal-label">Working Days/Month</div>
+        <input class="modal-input" id="edit-days" type="number" min="1" max="31" placeholder="26">
+      </div>
+      <div class="modal-field">
+        <div class="modal-label">PF Rate (%)</div>
+        <input class="modal-input" id="edit-pf" type="number" min="0" max="30" placeholder="12">
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Overtime Multiplier (x per day)</div>
+      <input class="modal-input" id="edit-ot" type="number" min="1" max="5" step="0.1" placeholder="1.5">
+    </div>
+
+    <div id="edit-modal-msg" style="font-size:0.8rem;color:var(--accent-green);min-height:18px;margin-top:4px"></div>
+    <button class="modal-save-btn" onclick="saveProfileEdit()">
+      <i class="fa fa-check"></i> Save Changes
+    </button>
+  </div>
+</div>
+
+<!-- PWA Install Banner -->
+<div class="pwa-banner hide" id="pwa-banner">
+  <div class="pwa-banner-icon">📱</div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Install SalaryPro App</div>
+    <div class="pwa-banner-sub">Add to home screen for app-like experience</div>
+  </div>
+  <button class="pwa-install-btn" onclick="installPWA()">Install</button>
+  <button class="pwa-dismiss-btn" onclick="dismissPWA()"><i class="fa fa-times"></i></button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  ADVANCED NOTIFICATION SYSTEM
+// ═══════════════════════════════════════════════════════════
+
+// ── Notification data store ──────────────────────────────────
+function getNotifs() {
+  try { return JSON.parse(localStorage.getItem('sp_notifs') || '[]'); } catch { return []; }
+}
+function saveNotifs(arr) { localStorage.setItem('sp_notifs', JSON.stringify(arr.slice(0, 100))); }
+
+// Notification settings
+function getNotifSettings() {
+  const defaults = { daily: true, salary: true, absent: true, weekly: false, dnd: false };
+  try { return { ...defaults, ...JSON.parse(localStorage.getItem('sp_notif_settings') || '{}') }; } catch { return defaults; }
+}
+function saveNotifSettings(s) { localStorage.setItem('sp_notif_settings', JSON.stringify(s)); }
+
+// ── Notification types config ────────────────────────────────
+const NOTIF_TYPES = {
+  salary:     { icon: '💰', bg: 'rgba(139,92,246,0.15)', color: '#8b5cf6' },
+  attendance: { icon: '📅', bg: 'rgba(16,185,129,0.15)',  color: '#10b981' },
+  reminder:   { icon: '⏰', bg: 'rgba(245,158,11,0.15)',  color: '#f59e0b' },
+  warning:    { icon: '⚠️', bg: 'rgba(236,72,153,0.15)',  color: '#ec4899' },
+  system:     { icon: '⚙️', bg: 'rgba(59,130,246,0.15)',  color: '#3b82f6' },
+  success:    { icon: '✅', bg: 'rgba(16,185,129,0.15)',  color: '#10b981' },
+  pf:         { icon: '🛡', bg: 'rgba(236,72,153,0.15)',  color: '#ec4899' },
+};
+
+// ── Core: add a notification ─────────────────────────────────
+function addNotification(title, body, type = 'system', showToast = true) {
+  const settings = getNotifSettings();
+  if (settings.dnd) return; // Do Not Disturb
+
+  const notif = {
+    id: Date.now() + Math.random(),
+    title, body, type,
+    time: new Date().toISOString(),
+    read: false
+  };
+
+  const arr = getNotifs();
+  arr.unshift(notif);
+  saveNotifs(arr);
+  renderNotifList();
+  updateNotifBadge();
+
+  if (showToast) showToastNotif(title, body, type);
+
+  // Also send native push if permission granted
+  if (Notification.permission === 'granted' && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'SHOW_NOTIFICATION',
+      title, body,
+      tag: type + '-' + Date.now(),
+      vibrate: [200, 100, 200],
+      url: './SalaryPro.html'
+    });
+  }
+}
+
+// ── Toast notification ───────────────────────────────────────
+let toastQueue = [];
+function showToastNotif(title, body, type = 'system', duration = 4000) {
+  const cfg = NOTIF_TYPES[type] || NOTIF_TYPES.system;
+  const id = 'toast-' + Date.now();
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.id = id;
+  toast.innerHTML = `
+    <div class="toast-icon" style="background:${cfg.bg};color:${cfg.color}">${cfg.icon}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      <div class="toast-body">${body}</div>
+      <div class="toast-progress"><div class="toast-progress-bar" id="tp-${id}" style="width:100%;background:${cfg.color}"></div></div>
+    </div>
+    <button class="toast-close" onclick="removeToast('${id}')"><i class="fa fa-times"></i></button>
+  `;
+  container.appendChild(toast);
+
+  // Animate progress bar
+  setTimeout(() => {
+    const bar = document.getElementById('tp-' + id);
+    if (bar) { bar.style.transition = `width ${duration}ms linear`; bar.style.width = '0%'; }
+  }, 50);
+
+  // Auto remove
+  setTimeout(() => removeToast(id), duration);
+}
+
+function removeToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.animation = 'slideOutToast 0.3s ease forwards';
+  setTimeout(() => el.remove(), 300);
+}
+
+// ── Notification drawer ──────────────────────────────────────
+let currentFilter = 'all';
+
+function toggleNotifDrawer() {
+  const drawer = document.getElementById('notif-drawer');
+  const overlay = document.getElementById('notif-overlay');
+  if (drawer.classList.contains('open')) {
+    closeNotifDrawer();
+  } else {
+    drawer.classList.add('open');
+    overlay.classList.add('show');
+    renderNotifList();
+    checkNotifPermission();
+  }
+}
+
+function closeNotifDrawer() {
+  document.getElementById('notif-drawer').classList.remove('open');
+  const ov = document.getElementById('notif-overlay');
+  if (ov) ov.classList.remove('show');
+}
+
+function filterNotifs(type, el) {
+  currentFilter = type;
+  document.querySelectorAll('.notif-filter').forEach(f => f.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderNotifList();
+}
+
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  let notifs = getNotifs();
+  if (currentFilter !== 'all') notifs = notifs.filter(n => n.type === currentFilter);
+
+  const unread = getNotifs().filter(n => !n.read).length;
+  const countEl = document.getElementById('notif-count-label');
+  if (countEl) countEl.textContent = unread > 0 ? `(${unread} unread)` : '';
+
+  if (notifs.length === 0) {
+    list.innerHTML = `<div class="notif-empty"><i class="fa fa-bell-slash"></i><span>No notifications</span></div>`;
+    return;
+  }
+
+  list.innerHTML = notifs.map(n => {
+    const cfg = NOTIF_TYPES[n.type] || NOTIF_TYPES.system;
+    const timeAgo = getTimeAgo(n.time);
+    return `
+      <div class="notif-item ${n.read ? '' : 'unread'}" onclick="readNotif(${n.id})">
+        <div class="notif-icon" style="background:${cfg.bg};color:${cfg.color}">${cfg.icon}</div>
+        <div class="notif-content">
+          <div class="notif-title-text">${n.title}</div>
+          <div class="notif-body-text">${n.body}</div>
+          <div class="notif-time-text"><i class="fa fa-clock" style="font-size:0.6rem"></i> ${timeAgo}</div>
+        </div>
+        <button class="notif-delete" onclick="deleteNotif(event,${n.id})"><i class="fa fa-trash"></i></button>
+      </div>`;
+  }).join('');
+}
+
+function readNotif(id) {
+  const arr = getNotifs().map(n => n.id === id ? { ...n, read: true } : n);
+  saveNotifs(arr);
+  renderNotifList();
+  updateNotifBadge();
+}
+
+function deleteNotif(e, id) {
+  e.stopPropagation();
+  const arr = getNotifs().filter(n => n.id !== id);
+  saveNotifs(arr);
+  renderNotifList();
+  updateNotifBadge();
+}
+
+function markAllRead() {
+  const arr = getNotifs().map(n => ({ ...n, read: true }));
+  saveNotifs(arr);
+  renderNotifList();
+  updateNotifBadge();
+}
+
+function clearAllNotifs() {
+  saveNotifs([]);
+  renderNotifList();
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  const unread = getNotifs().filter(n => !n.read).length;
+  const badge = document.getElementById('notif-badge');
+  const bell = document.getElementById('notif-bell');
+  if (badge) {
+    badge.textContent = unread > 9 ? '9+' : unread;
+    badge.classList.toggle('hide', unread === 0);
+  }
+  if (bell) bell.classList.toggle('has-unread', unread > 0);
+}
+
+function getTimeAgo(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
+}
+
+// ── Notification settings toggles ───────────────────────────
+function toggleNotifSetting(key, el) {
+  const s = getNotifSettings();
+  s[key] = !s[key];
+  saveNotifSettings(s);
+  el.classList.toggle('on', s[key]);
+}
+
+function loadNotifSettings() {
+  const s = getNotifSettings();
+  Object.keys(s).forEach(k => {
+    const el = document.getElementById('toggle-' + k);
+    if (el) el.classList.toggle('on', s[k]);
+  });
+}
+
+// ── Push notification permission ─────────────────────────────
+function checkNotifPermission() {
+  const card = document.getElementById('notif-permission-card');
+  if (!card) return;
+  if (!('Notification' in window) || Notification.permission === 'granted') {
+    card.style.display = 'none';
+  } else {
+    card.style.display = 'block';
+  }
+}
+
+async function requestNotifPermission() {
+  if (!('Notification' in window)) {
+    showToastNotif('Not Supported', 'Your browser does not support notifications.', 'warning');
+    return;
+  }
+  const result = await Notification.requestPermission();
+  if (result === 'granted') {
+    document.getElementById('notif-permission-card').style.display = 'none';
+    addNotification('🎉 Notifications Enabled!', 'You will now receive salary reminders and attendance alerts.', 'success');
+    scheduleSmartReminders();
+  } else {
+    showToastNotif('Permission Denied', 'Enable notifications in browser settings.', 'warning');
+  }
+}
+
+// ── Smart scheduled reminders ────────────────────────────────
+function scheduleSmartReminders() {
+  const settings = getNotifSettings();
+
+  // Daily attendance reminder at 9 AM
+  if (settings.daily) {
+    const now = new Date();
+    const next9am = new Date(now);
+    next9am.setHours(9, 0, 0, 0);
+    if (next9am <= now) next9am.setDate(next9am.getDate() + 1);
+    const msUntil9am = next9am - now;
+    setTimeout(() => {
+      triggerDailyReminder();
+      setInterval(triggerDailyReminder, 24 * 60 * 60 * 1000);
+    }, msUntil9am);
+  }
+
+  // Evening salary update at 6 PM
+  const now = new Date();
+  const next6pm = new Date(now);
+  next6pm.setHours(18, 0, 0, 0);
+  if (next6pm <= now) next6pm.setDate(next6pm.getDate() + 1);
+  setTimeout(() => {
+    triggerEveningUpdate();
+    setInterval(triggerEveningUpdate, 24 * 60 * 60 * 1000);
+  }, next6pm - now);
+}
+
+function triggerDailyReminder() {
+  const settings = getNotifSettings();
+  if (!settings.daily || settings.dnd) return;
+  const today = new Date();
+  const dow = today.getDay();
+  if (dow === 0) return; // Skip Sunday
+  const data = getAttData();
+  const dateStr = today.toISOString().split('T')[0];
+  if (!data[dateStr]) {
+    addNotification(
+      "⏰ Mark Today's Attendance",
+      `Don't forget to mark attendance for ${today.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}.`,
+      'reminder'
+    );
+  }
+}
+
+function triggerEveningUpdate() {
+  const settings = getNotifSettings();
+  if (settings.dnd) return;
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+  if (s.effectiveDays > 0) {
+    addNotification(
+      '📊 Evening Salary Update',
+      `Today's update: Gross ₹${fmt(s.earned)} | Net ₹${fmt(s.netEarned)} | PF ₹${fmt(s.pfDeducted)} deducted.`,
+      'salary'
+    );
+  }
+}
+
+// ── Smart attendance-triggered notifications ─────────────────
+function notifyOnAttendanceMark(status, dateStr) {
+  const settings = getNotifSettings();
+  const data = getAttData();
+  const now = new Date();
+  const s = calcSalary(data, now.getFullYear(), now.getMonth());
+  const d = new Date(dateStr);
+  const dayLabel = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+  const msgs = {
+    present:  { title: '✅ Present Marked', body: `${dayLabel} marked present. Earned today: +₹${fmt(PER_DAY)}. Total net: ₹${fmt(s.netEarned)}.`, type: 'attendance' },
+    absent:   { title: '❌ Absent Marked',  body: `${dayLabel} marked absent. No salary for this day. Total absent: ${s.absent} days.`, type: 'warning' },
+    halfday:  { title: '🌓 Half Day Marked', body: `${dayLabel} half day. Earned: +₹${fmt(PER_DAY * 0.5)}. Total net: ₹${fmt(s.netEarned)}.`, type: 'attendance' },
+    overtime: { title: '⏰ Overtime Marked', body: `${dayLabel} overtime! Earned: +₹${fmt(PER_DAY * OT_RATE)} (${OT_RATE}x). Total net: ₹${fmt(s.netEarned)}.`, type: 'success' },
+    holiday:  { title: '🎉 Holiday Marked',  body: `${dayLabel} is a holiday. Paid holiday: +₹${fmt(PER_DAY)}.`, type: 'system' },
+  };
+
+  if (status && msgs[status]) {
+    const m = msgs[status];
+    addNotification(m.title, m.body, m.type);
+  }
+
+  // Salary milestone alerts
+  if (settings.salary) {
+    const milestones = [25, 50, 75, 100];
+    const pct = (s.earned / MONTHLY_SALARY) * 100;
+    milestones.forEach(ms => {
+      const key = `sp_ms_${now.getFullYear()}_${now.getMonth()}_${ms}`;
+      if (pct >= ms && !localStorage.getItem(key)) {
+        localStorage.setItem(key, '1');
+        addNotification(
+          `🎯 ${ms}% Salary Milestone!`,
+          `You've earned ${ms}% of your monthly salary! Gross: ₹${fmt(s.earned)}, Net: ₹${fmt(s.netEarned)}.`,
+          'salary'
+        );
+      }
+    });
+  }
+
+  // Absent warning
+  if (settings.absent && s.absent >= 3) {
+    const key = `sp_absent_warn_${now.getFullYear()}_${now.getMonth()}_${s.absent}`;
+    if (!localStorage.getItem(key)) {
+      localStorage.setItem(key, '1');
+      addNotification(
+        `⚠️ ${s.absent} Absences This Month`,
+        `You have ${s.absent} absent days. Salary impact: -₹${fmt(s.absent * PER_DAY)}. Net loss: -₹${fmt(s.absent * PER_DAY * (1 - PF_RATE))}.`,
+        'warning'
+      );
+    }
+  }
+}
+
+// ── PWA Install ──────────────────────────────────────────────
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const banner = document.getElementById('pwa-banner');
+  if (banner && !localStorage.getItem('sp_pwa_dismissed')) {
+    setTimeout(() => banner.classList.remove('hide'), 3000);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-banner').classList.add('hide');
+  addNotification('📱 App Installed!', 'SalaryPro has been added to your home screen. Enjoy the app experience!', 'success');
+});
+
+async function installPWA() {
+  if (!deferredInstallPrompt) {
+    showToastNotif('Install Guide', 'Tap browser menu → "Add to Home Screen" to install.', 'system', 6000);
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('pwa-banner').classList.add('hide');
+}
+
+function dismissPWA() {
+  document.getElementById('pwa-banner').classList.add('hide');
+  localStorage.setItem('sp_pwa_dismissed', '1');
+}
+
+// ── Service Worker registration ──────────────────────────────
+async function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.register('./sw.js');
+    console.log('SW registered:', reg.scope);
+
+    // Request periodic sync if supported
+    if ('periodicSync' in reg) {
+      try {
+        await reg.periodicSync.register('daily-reminder', { minInterval: 24 * 60 * 60 * 1000 });
+      } catch (e) { /* not supported */ }
+    }
+  } catch (err) {
+    console.warn('SW registration failed:', err);
+  }
+}
+
+// ── Init notifications on app start ─────────────────────────
+function initNotifications() {
+  registerSW();
+  loadNotifSettings();
+  updateNotifBadge();
+  scheduleSmartReminders();
+
+  // Welcome notification on first launch
+  const firstLaunch = !localStorage.getItem('sp_launched');
+  if (firstLaunch) {
+    localStorage.setItem('sp_launched', '1');
+    setTimeout(() => {
+      addNotification(
+        '👋 Welcome to SalaryPro!',
+        'Your premium salary manager is ready. Start by marking today\'s attendance.',
+        'system'
+      );
+      addNotification(
+        '💡 Quick Tip',
+        'Tap any date on the calendar to mark attendance. Your salary updates automatically!',
+        'system'
+      );
+    }, 1000);
+  }
+
+  // Check if today's attendance is missing (weekdays only)
+  setTimeout(() => {
+    const settings = getNotifSettings();
+    if (!settings.daily) return;
+    const today = new Date();
+    if (today.getDay() === 0) return;
+    const dateStr = today.toISOString().split('T')[0];
+    const data = getAttData();
+    if (!data[dateStr]) {
+      addNotification(
+        "📅 Today's Attendance Pending",
+        `You haven't marked attendance for today (${today.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}). Tap to mark now.`,
+        'reminder'
+      );
+    }
+  }, 2000);
+}
+
+// ── Hook into markDay to trigger notifications ───────────────
+const _origMarkDay = markDay;
+// Override markDay to also fire notifications
+window.markDay = function(status) {
+  const dateStr = popupDateStr; // capture before closePopup clears it
+  _origMarkDay(status);
+  if (status && dateStr) {
+    notifyOnAttendanceMark(status, dateStr);
+  }
+};
+</script>
+</body>
+</html>
